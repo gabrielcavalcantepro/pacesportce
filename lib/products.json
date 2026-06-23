@@ -1,0 +1,226 @@
+[
+  {
+    "id": "1",
+    "slug": "capacete-speed-pro",
+    "name": "Capacete Speed Pro",
+    "description": "Capacete aerodinâmico para ciclismo de estrada. Ventilação otimizada, leveza extrema e ajuste preciso. Aprovado pelo INMETRO.",
+    "fullDescription": "O Capacete Speed Pro foi desenvolvido em parceria com atletas de alto rendimento para entregar o máximo em aerodinâmica sem abrir mão do conforto. Sua estrutura em policarbonato de alta resistência absorve impactos e mantém o peso total abaixo de 280g.\n\nO sistema de ventilação com 22 entradas de ar garante temperatura confortável mesmo nas pedaladas mais intensas. O forro interno em material antibacteriano e lavável facilita a higiene após cada treino.\n\nO ajuste occipital Dial-Fit permite regulagem precisa com uma só mão enquanto você pedala, garantindo encaixe perfeito para cabeças de 52 a 62cm de circunferência.",
+    "specifications": [
+      { "label": "Categoria", "value": "Ciclismo de estrada" },
+      { "label": "Material", "value": "Policarbonato + EPS" },
+      { "label": "Ventilação", "value": "22 entradas de ar" },
+      { "label": "Peso", "value": "Aprox. 280g" },
+      { "label": "Certificação", "value": "INMETRO / CE EN1078" },
+      { "label": "Tamanhos", "value": "P (52-56cm), M (56-58cm), G (58-62cm)" }
+    ],
+    "price": 15990,
+    "compareAtPrice": 19990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Capacete+Speed+Pro",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Capacete+Lateral",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Capacete+Interior"
+    ],
+    "category": "ciclismo",
+    "tags": ["capacete", "ciclismo", "speed", "segurança"],
+    "variants": [
+      { "id": "v1", "name": "Tamanho", "options": ["P (52-56cm)", "M (56-58cm)", "G (58-62cm)"] },
+      { "id": "v2", "name": "Cor", "options": ["Preto", "Branco", "Cinza"] }
+    ],
+    "stock": 15,
+    "featured": true
+  },
+  {
+    "id": "2",
+    "slug": "luva-ciclismo-grip",
+    "name": "Luva de Ciclismo Grip",
+    "description": "Luva antiderrapante com palmar em gel para máximo conforto em longas pedaladas. Material respirável e lavável à máquina.",
+    "fullDescription": "As Luvas de Ciclismo Grip combinam tecnologia de absorção de impactos com design ergonômico para proporcionar o máximo de controle sobre o guidão durante percursos longos e desafiadores.\n\nO palmar duplo em gel viscoelástico distribui a pressão uniformemente pela palma da mão, reduzindo a fadiga e prevenindo dormências comuns em pedaladas acima de 2 horas. O dorso em mesh 3D é ultrarrespirável e seca rapidamente após a transpiração.\n\nO velcro de ajuste com acabamento slim não interfere nos shifters nem nos freios. Compatível com touchscreen nos dedos indicador e polegar, para uso de ciclocomputadores e smartphones.",
+    "specifications": [
+      { "label": "Palmar", "value": "Gel viscoelástico duplo" },
+      { "label": "Dorso", "value": "Mesh 3D respirável" },
+      { "label": "Fecho", "value": "Velcro slim" },
+      { "label": "Touchscreen", "value": "Sim (indicador e polegar)" },
+      { "label": "Lavagem", "value": "Máquina até 30°C" },
+      { "label": "Tamanhos", "value": "P, M, G, GG" }
+    ],
+    "price": 8990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Luva+Ciclismo+Grip",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Luva+Detalhe+Gel",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Luva+Par"
+    ],
+    "category": "ciclismo",
+    "tags": ["luva", "ciclismo", "acessório", "gel"],
+    "variants": [
+      { "id": "v1", "name": "Tamanho", "options": ["P", "M", "G", "GG"] }
+    ],
+    "stock": 30,
+    "featured": true
+  },
+  {
+    "id": "3",
+    "slug": "oculos-natacao-pro-vision",
+    "name": "Óculos de Natação Pro Vision",
+    "description": "Lentes anti-embaçante com proteção UV400. Vedação dupla em silicone para máximo conforto. Ideal para treino e competição.",
+    "fullDescription": "Os Óculos de Natação Pro Vision foram projetados para atender tanto ao nadador recreativo quanto ao competidor de alto nível. As lentes policarbonato com revestimento anti-embaçante mantêm a visibilidade cristalina durante treinos intensos.\n\nA proteção UV400 bloqueia 100% dos raios UVA e UVB, tornando estes óculos seguros para uso em águas abertas com exposição solar. A vedação dupla em silicone de grau médico se adapta à anatomia de diferentes rostos, garantindo estanqueidade sem causar marcas ou desconforto.\n\nO elástico de silicone trançado é ajustável e antiderrapante, não escorrega durante as largadas e viradas. A estrutura possui três pontos de ajuste: ponte do nariz (intercambiável) e duas alças independentes.",
+    "specifications": [
+      { "label": "Lente", "value": "Policarbonato anti-embaçante" },
+      { "label": "Proteção UV", "value": "UV400 (100% UVA/UVB)" },
+      { "label": "Vedação", "value": "Dupla em silicone médico" },
+      { "label": "Elástico", "value": "Silicone trançado duplo ajustável" },
+      { "label": "Ponte do nariz", "value": "Intercambiável (3 tamanhos)" },
+      { "label": "Indicado para", "value": "Piscina e águas abertas" }
+    ],
+    "price": 12990,
+    "compareAtPrice": 15990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Óculos+Natação",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Óculos+Detalhe",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Óculos+Conjunto"
+    ],
+    "category": "natacao",
+    "tags": ["óculos", "natação", "piscina", "UV", "anti-embaçante"],
+    "variants": [
+      { "id": "v1", "name": "Cor da Lente", "options": ["Transparente", "Fumê", "Espelhado"] }
+    ],
+    "stock": 25,
+    "featured": true
+  },
+  {
+    "id": "4",
+    "slug": "touca-silicone-premium",
+    "name": "Touca de Silicone Premium",
+    "description": "Touca de silicone resistente ao cloro com alta durabilidade. Elasticidade superior para todos os tipos de cabelo.",
+    "fullDescription": "A Touca de Silicone Premium é fabricada com silicone de alta pureza, sem látex, tornando-a segura para pessoas com alergia. A espessura de 0,6mm oferece o equilíbrio perfeito entre resistência e facilidade de colocação.\n\nSua composição é especialmente resistente ao cloro das piscinas e ao sal das águas abertas, mantendo a elasticidade e a cor mesmo após centenas de usos. Diferente das toucas de silicone comuns, ela não prende nem quebra o cabelo na hora de retirar.\n\nDisponível em diversas cores vibrantes para identificação fácil na piscina, seja em treinos individuais ou em grupos. Lavável com água e sabão neutro.",
+    "specifications": [
+      { "label": "Material", "value": "Silicone de alta pureza (sem látex)" },
+      { "label": "Espessura", "value": "0,6mm" },
+      { "label": "Resistência", "value": "Cloro e água salgada" },
+      { "label": "Dimensões", "value": "48 × 23cm (esticada)" },
+      { "label": "Peso", "value": "Aprox. 60g" },
+      { "label": "Indicado para", "value": "Piscina e mar" }
+    ],
+    "price": 3990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Touca+Silicone",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Touca+Detalhe"
+    ],
+    "category": "natacao",
+    "tags": ["touca", "natação", "silicone", "piscina", "cloro"],
+    "variants": [
+      { "id": "v1", "name": "Cor", "options": ["Preto", "Azul", "Vermelho", "Branco"] }
+    ],
+    "stock": 50,
+    "featured": false
+  },
+  {
+    "id": "5",
+    "slug": "tenis-corrida-airstep",
+    "name": "Tênis de Corrida AirStep",
+    "description": "Tênis de corrida com solado de alto amortecimento e cabedal em mesh respirável. Ideal para treinos de longa distância.",
+    "fullDescription": "O AirStep foi desenvolvido com foco em corredores de rua que buscam proteção articular sem abrir mão de responsividade. A entressola em EVA de dupla densidade cria uma zona de amortecimento frontal (impacto do calcanhar) e uma zona de retorno de energia na região do médio pé.\n\nO cabedal em mesh multidirecional oferece suporte estrutural sem aumentar o peso, com reforços estratégicos na área do hallux e no calcanhar. A lingueta acolchoada e a gola do tornozelo em espuma de memória garantem entrada suave sem pontos de pressão.\n\nA sola em borracha de carbono tem durabilidade superior e oferece aderência confiável em asfalto molhado. Indicado para treinos de 5km a meia maratona.",
+    "specifications": [
+      { "label": "Drop", "value": "8mm" },
+      { "label": "Peso", "value": "Aprox. 290g (tam. 42)" },
+      { "label": "Stack Height", "value": "32mm (calcanhar) / 24mm (antepé)" },
+      { "label": "Cabedal", "value": "Mesh multidirecional com reforços" },
+      { "label": "Entressola", "value": "EVA dupla densidade" },
+      { "label": "Indicado para", "value": "Treinos de 5km a 21km" }
+    ],
+    "price": 29990,
+    "compareAtPrice": 34990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Tênis+AirStep",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Tênis+Lateral",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Tênis+Solado"
+    ],
+    "category": "corrida",
+    "tags": ["tênis", "corrida", "running", "amortecimento", "maratona"],
+    "variants": [
+      { "id": "v1", "name": "Tamanho", "options": ["38", "39", "40", "41", "42", "43", "44"] },
+      { "id": "v2", "name": "Cor", "options": ["Preto/Cinza", "Branco/Azul"] }
+    ],
+    "stock": 20,
+    "featured": true
+  },
+  {
+    "id": "6",
+    "slug": "cinto-hidratacao-trail",
+    "name": "Cinto de Hidratação Trail",
+    "description": "Cinto ultraleve com 4 suportes para garrafinhas de 250ml. Bolso com zíper para essenciais. Perfeito para trails e maratonas.",
+    "fullDescription": "O Cinto de Hidratação Trail foi concebido para ultrapassar os 30km sem peso desnecessário. Com apenas 120g sem garrafinhas, você mal percebe que está usando — até a primeira sinalização de sede, quando tudo o que você precisa já está na cintura.\n\nOs 4 suportes de neoprene elástico prendem garrafinhas de até 250ml com firmeza suficiente para não cair nem nas descidas mais íngremes de trilha. O elástico principal se contrai com a respiração, eliminando o bounce irritante comum em cintos de tamanho fixo.\n\nO bolso frontal impermeável comporta chaves, gel de carboidrato, pequenos snacks e documentos. Inclui também um adesivo reflexivo na parte traseira para visibilidade em corridas noturnas.",
+    "specifications": [
+      { "label": "Capacidade", "value": "4 garrafinhas de até 250ml" },
+      { "label": "Garrafinhas", "value": "Não inclusas" },
+      { "label": "Peso (sem garrafinhas)", "value": "Aprox. 120g" },
+      { "label": "Ajuste", "value": "Elástico 60-120cm de cintura" },
+      { "label": "Bolso", "value": "Impermeável com zíper" },
+      { "label": "Extras", "value": "Adesivo reflexivo traseiro" }
+    ],
+    "price": 7990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Cinto+Hidratação",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Cinto+Detalhe",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Cinto+Uso"
+    ],
+    "category": "corrida",
+    "tags": ["cinto", "hidratação", "corrida", "trail", "ultramaratona"],
+    "variants": [
+      { "id": "v1", "name": "Tamanho", "options": ["P/M (60-85cm)", "G/GG (85-120cm)"] }
+    ],
+    "stock": 18,
+    "featured": false
+  },
+  {
+    "id": "7",
+    "slug": "bicicleta-mtb-2022",
+    "name": "Bicicleta MTB 29\" 2022 (Semi-nova)",
+    "description": "Bicicleta de montanha aro 29, quadro em alumínio 6061, Shimano Altus 21v, freios a disco hidráulico. Aprox. 500km rodados.",
+    "fullDescription": "Esta bicicleta MTB 2022 chegou a nós de um proprietário único que a utilizou exclusivamente em trilhas de baixa dificuldade nos fins de semana. O estado de conservação é excelente: pintura sem riscos relevantes, componentes sem desgaste perceptível.\n\nPassou por revisão completa na nossa oficina: ajuste de câmbio, freios e headset, lubrificação de corrente, calibragem de rodas e teste de estanqueidade nos freios hidráulicos. Está pronta para rodar.\n\nÉ uma excelente oportunidade para quem quer entrar no mountain bike com equipamento de qualidade a um terço do preço de uma bicicleta nova equivalente. Acompanha manual original e nota de revisão.",
+    "specifications": [
+      { "label": "Aro", "value": "29\"" },
+      { "label": "Quadro", "value": "Alumínio 6061 hidroformado" },
+      { "label": "Câmbio", "value": "Shimano Altus 21v (3×7)" },
+      { "label": "Freio", "value": "Disco hidráulico" },
+      { "label": "Suspensão", "value": "Dianteira, curso 100mm" },
+      { "label": "Peso", "value": "Aprox. 13,5kg" },
+      { "label": "Condição", "value": "Semi-nova (aprox. 500km)" }
+    ],
+    "price": 250000,
+    "compareAtPrice": 350000,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=MTB+29+2022",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=MTB+Lateral",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=MTB+Detalhe"
+    ],
+    "category": "ciclismo",
+    "tags": ["bicicleta", "MTB", "mountain bike", "semi-nova", "29", "shimano"],
+    "stock": 1,
+    "featured": true,
+    "condition": "used"
+  },
+  {
+    "id": "8",
+    "slug": "camara-ar-29",
+    "name": "Câmara de Ar 29\"",
+    "description": "Câmara de ar para bicicletas aro 29 com válvula Presta 48mm. Alta resistência a perfurações. Compatível com 29×1.95\" a 29×2.35\".",
+    "fullDescription": "A câmara de ar aro 29 é fabricada com borracha butílica de qualidade superior, que oferece menor permeabilidade ao ar e vida útil significativamente maior do que câmaras de linha básica.\n\nA válvula Presta de 48mm é ideal para aros de mountain bike, com núcleo removível para facilitar selagens preventivas com látex ou fluido selante. A espessura de parede de 0,9mm oferece boa resistência a pequenas perfurações por espinhos e pedaços de vidro.\n\nCompatível com os pneus mais comuns de MTB entre 1.95\" e 2.35\" de largura. Recomendamos pressão entre 30 e 50 PSI para uso em trilha e entre 40 e 65 PSI para uso misto.",
+    "specifications": [
+      { "label": "Aro compatível", "value": "29\"" },
+      { "label": "Válvula", "value": "Presta 48mm (núcleo removível)" },
+      { "label": "Largura compatível", "value": "1.95\" a 2.35\"" },
+      { "label": "Material", "value": "Borracha butílica premium" },
+      { "label": "Espessura da parede", "value": "0,9mm" },
+      { "label": "Pressão recomendada", "value": "30–65 PSI" }
+    ],
+    "price": 4990,
+    "images": [
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Câmara+29\"",
+      "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Câmara+Detalhe"
+    ],
+    "category": "ciclismo",
+    "tags": ["câmara", "ar", "29", "bicicleta", "peça", "presta"],
+    "stock": 40,
+    "featured": false
+  }
+]
