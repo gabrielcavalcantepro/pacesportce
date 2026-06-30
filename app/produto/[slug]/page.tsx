@@ -29,9 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const categoryLabel: Record<string, string> = {
-  ciclismo: 'Ciclismo',
-  natacao: 'Natação',
-  corrida: 'Corrida',
+  'acessorios-bike':    'Acessórios Bike',
+  'acessorios-corrida': 'Acessórios Corrida',
+  'acessorios-natacao': 'Acessórios de Natação',
+  'suplementos':        'Suplementos',
+  'pecas':              'Peças',
+  'seminovas':          'Oportunidades em Semi Novas',
 };
 
 export default async function ProductPage({ params }: Props) {
@@ -65,7 +68,7 @@ export default async function ProductPage({ params }: Props) {
             <p className="text-xs font-semibold text-[#888888] uppercase tracking-wider mb-2">
               {label}
             </p>
-            <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#f4f4f4] mb-3">
+            <h1 className="font-display text-[22px] sm:text-[26px] lg:text-[32px] font-bold text-[#f4f4f4] mb-3">
               {product.name}
             </h1>
 

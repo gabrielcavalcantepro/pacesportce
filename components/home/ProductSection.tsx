@@ -38,7 +38,7 @@ export default function ProductSection({ products }: ProductSectionProps) {
           <span className="text-xs font-semibold text-[#888888] uppercase tracking-widest">
             Catálogo
           </span>
-          <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#f4f4f4] mt-2 mb-6">
+          <h2 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4] mt-2 mb-6">
             Nossos Produtos
           </h2>
           <CategoryBar active={activeCategory} onChange={setActiveCategory} />
@@ -59,7 +59,7 @@ export default function ProductSection({ products }: ProductSectionProps) {
               <span className="text-xs font-semibold text-[#888888] uppercase tracking-widest">
                 Destaques
               </span>
-              <h3 className="font-display text-2xl lg:text-3xl font-bold text-[#f4f4f4] mt-2">
+              <h3 className="font-display text-[20px] sm:text-[24px] lg:text-[28px] font-bold text-[#f4f4f4] mt-2">
                 Mais Vendidos
               </h3>
             </div>

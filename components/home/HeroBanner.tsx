@@ -1,47 +1,106 @@
-import Link from 'next/link';
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+const slides = [
+  { id: 1, alt: 'Banner 1' },
+  { id: 2, alt: 'Banner 2' },
+];
 
 export default function HeroBanner() {
-  return (
-    <section className="relative bg-[#1e1e1e] overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 25% 25%, #f4f4f4 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
-      </div>
+  const [current, setCurrent] = useState(0);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
-        <div className="max-w-2xl">
-          <span className="inline-block text-xs font-semibold text-[#888888] uppercase tracking-widest mb-4 border border-[#2a2a2a] rounded-full px-3 py-1">
-            Bicicleta · Natação · Corrida
-          </span>
-          <h1 className="font-display text-5xl lg:text-7xl font-extrabold text-[#f4f4f4] leading-tight mb-6">
-            Equipe-se para{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f4f4f4] to-[#888888]">
-              ir mais longe
-            </span>
-          </h1>
-          <p className="text-lg text-[#888888] leading-relaxed mb-10 max-w-xl">
-            Acessórios esportivos selecionados para atletas que levam o desempenho a sério.
-            Qualidade, variedade e preço justo.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              href="/#produtos"
-              className="inline-flex items-center gap-2 bg-[#f4f4f4] text-[#151515] font-semibold px-8 py-3 rounded-lg hover:bg-white transition-colors"
-            >
-              Ver Produtos
-            </Link>
-            <Link
-              href="/#sobre"
-              className="inline-flex items-center gap-2 border border-[#2a2a2a] text-[#f4f4f4] font-semibold px-8 py-3 rounded-lg hover:border-[#f4f4f4] transition-colors"
-            >
-              Conheça a loja
-            </Link>
-          </div>
+  const next = useCallback(() => setCurrent((c) => (c + 1) % slides.length), []);
+  const prev = () => setCurrent((c) => (c - 1 + slides.length) % slides.length);
+
+  useEffect(() => {
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [next]);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+    const deltaY = Math.abs(touchStartY.current - e.changedTouches[0].clientY);
+    // só dispara se for arrasto horizontal, não scroll vertical
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > deltaY) {
+      deltaX > 0 ? next() : prev();
+    }
+  }
+
+  return (
+    <section
+      className="relative overflow-hidden h-[480px] sm:h-[560px] lg:h-[700px] select-none"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {slides.map((slide, i) => (
+        <div
+          key={slide.id}
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+            i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          }`}
+          aria-hidden={i !== current}
+        >
+          <picture className="absolute inset-0">
+            <source
+              media="(max-width: 767px)"
+              srcSet={`/assets/banner-${slide.id}-m.webp`}
+              type="image/webp"
+            />
+            <img
+              src={`/assets/banner-${slide.id}.webp`}
+              alt={slide.alt}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              draggable={false}
+            />
+          </picture>
         </div>
-      </div>
+      ))}
+
+      {/* Setas — ocultas no mobile, visíveis no sm+ */}
+      {slides.length > 1 && (
+        <>
+          <button
+            onClick={prev}
+            className="hidden sm:flex absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/60 text-white rounded-full transition-colors items-center justify-center"
+            aria-label="Slide anterior"
+          >
+            <ChevronLeft size={22} />
+          </button>
+          <button
+            onClick={next}
+            className="hidden sm:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 z-30 p-2 bg-black/30 hover:bg-black/60 text-white rounded-full transition-colors items-center justify-center"
+            aria-label="Próximo slide"
+          >
+            <ChevronRight size={22} />
+          </button>
+        </>
+      )}
+
+      {/* Dots */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === current ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'
+              }`}
+              aria-label={`Ir para slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

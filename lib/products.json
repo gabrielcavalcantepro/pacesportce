@@ -20,7 +20,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Capacete+Lateral",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Capacete+Interior"
     ],
-    "category": "ciclismo",
+    "category": "acessorios-bike",
     "tags": ["capacete", "ciclismo", "speed", "segurança"],
     "variants": [
       { "id": "v1", "name": "Tamanho", "options": ["P (52-56cm)", "M (56-58cm)", "G (58-62cm)"] },
@@ -49,7 +49,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Luva+Detalhe+Gel",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Luva+Par"
     ],
-    "category": "ciclismo",
+    "category": "acessorios-bike",
     "tags": ["luva", "ciclismo", "acessório", "gel"],
     "variants": [
       { "id": "v1", "name": "Tamanho", "options": ["P", "M", "G", "GG"] }
@@ -78,7 +78,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Óculos+Detalhe",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Óculos+Conjunto"
     ],
-    "category": "natacao",
+    "category": "acessorios-natacao",
     "tags": ["óculos", "natação", "piscina", "UV", "anti-embaçante"],
     "variants": [
       { "id": "v1", "name": "Cor da Lente", "options": ["Transparente", "Fumê", "Espelhado"] }
@@ -105,7 +105,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Touca+Silicone",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Touca+Detalhe"
     ],
-    "category": "natacao",
+    "category": "acessorios-natacao",
     "tags": ["touca", "natação", "silicone", "piscina", "cloro"],
     "variants": [
       { "id": "v1", "name": "Cor", "options": ["Preto", "Azul", "Vermelho", "Branco"] }
@@ -134,7 +134,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Tênis+Lateral",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Tênis+Solado"
     ],
-    "category": "corrida",
+    "category": "acessorios-corrida",
     "tags": ["tênis", "corrida", "running", "amortecimento", "maratona"],
     "variants": [
       { "id": "v1", "name": "Tamanho", "options": ["38", "39", "40", "41", "42", "43", "44"] },
@@ -163,7 +163,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Cinto+Detalhe",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Cinto+Uso"
     ],
-    "category": "corrida",
+    "category": "acessorios-corrida",
     "tags": ["cinto", "hidratação", "corrida", "trail", "ultramaratona"],
     "variants": [
       { "id": "v1", "name": "Tamanho", "options": ["P/M (60-85cm)", "G/GG (85-120cm)"] }
@@ -193,7 +193,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=MTB+Lateral",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=MTB+Detalhe"
     ],
-    "category": "ciclismo",
+    "category": "seminovas",
     "tags": ["bicicleta", "MTB", "mountain bike", "semi-nova", "29", "shimano"],
     "stock": 1,
     "featured": true,
@@ -218,7 +218,7 @@
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Câmara+29\"",
       "https://placehold.co/600x600/1e1e1e/f4f4f4?text=Câmara+Detalhe"
     ],
-    "category": "ciclismo",
+    "category": "pecas",
     "tags": ["câmara", "ar", "29", "bicicleta", "peça", "presta"],
     "stock": 40,
     "featured": false

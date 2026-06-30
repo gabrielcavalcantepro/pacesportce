@@ -25,10 +25,10 @@ export default function InstagramFeed() {
           <span className="text-xs font-semibold text-[#888888] uppercase tracking-widest">
             Instagram
           </span>
-          <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#f4f4f4] mt-2 mb-2">
+          <h2 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4] mt-2 mb-2">
             @pacesportce
           </h2>
-          <p className="text-[#888888]">Siga-nos para novidades, dicas e promoções exclusivas.</p>
+          <p className="text-sm lg:text-base text-[#888888]">Siga-nos para novidades, dicas e promoções exclusivas.</p>
         </div>
 
         {/* 3x2 grid */}

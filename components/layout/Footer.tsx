@@ -30,7 +30,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/assets/logo-branco.png"
+              src="/assets/logo-branco.webp"
               alt="PaceSportce"
               width={130}
               height={36}

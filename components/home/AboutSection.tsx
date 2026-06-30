@@ -31,14 +31,14 @@ export default function AboutSection() {
             <span className="text-xs font-semibold text-[#888888] uppercase tracking-widest">
               Quem somos
             </span>
-            <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#f4f4f4] mt-2 mb-6">
+            <h2 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4] mt-2 mb-6">
               Sobre a PaceSportce
             </h2>
-            <p className="text-[#888888] leading-relaxed mb-4">
+            <p className="text-sm lg:text-base text-[#888888] leading-relaxed mb-4">
               Nascemos da paixão pelo esporte e do desejo de tornar equipamentos de qualidade
               acessíveis a todos — do atleta iniciante ao competidor experiente.
             </p>
-            <p className="text-[#888888] leading-relaxed">
+            <p className="text-sm lg:text-base text-[#888888] leading-relaxed">
               Trabalhamos com bicicletas, acessórios de natação e corrida, além de peças de
               reposição e bicicletas semi-novas revisadas. Cada produto passa por nossa curadoria
               antes de chegar até você.

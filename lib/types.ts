@@ -1,4 +1,10 @@
-export type Category = 'ciclismo' | 'natacao' | 'corrida';
+export type Category =
+  | 'acessorios-bike'
+  | 'acessorios-corrida'
+  | 'acessorios-natacao'
+  | 'suplementos'
+  | 'pecas'
+  | 'seminovas';
 
 export interface Variant {
   id: string;

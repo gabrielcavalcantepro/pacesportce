@@ -10,10 +10,13 @@ interface CategoryBarProps {
 }
 
 const categories: { value: FilterCategory; label: string }[] = [
-  { value: 'todos', label: 'Todos' },
-  { value: 'ciclismo', label: 'Ciclismo' },
-  { value: 'natacao', label: 'Natação' },
-  { value: 'corrida', label: 'Corrida' },
+  { value: 'todos',              label: 'Todos' },
+  { value: 'acessorios-bike',   label: 'Acessórios Bike' },
+  { value: 'acessorios-corrida', label: 'Acessórios Corrida' },
+  { value: 'acessorios-natacao', label: 'Acessórios de Natação' },
+  { value: 'suplementos',        label: 'Suplementos' },
+  { value: 'pecas',              label: 'Peças' },
+  { value: 'seminovas',          label: 'Oportunidades em Semi Novas' },
 ];
 
 export default function CategoryBar({ active, onChange }: CategoryBarProps) {

@@ -85,11 +85,11 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
             <Image
-              src="/assets/logo-branco.png"
+              src="/assets/logo-branco.webp"
               alt="PaceSportce"
-              width={140}
-              height={40}
-              className="h-8 w-auto object-contain"
+              width={120}
+              height={34}
+              className="h-6 sm:h-7 w-auto object-contain"
               priority
             />
           </Link>

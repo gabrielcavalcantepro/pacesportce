@@ -26,7 +26,7 @@ export default function ContactSection() {
           <span className="text-xs font-semibold text-[#888888] uppercase tracking-widest">
             Fale conosco
           </span>
-          <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#f4f4f4] mt-2">
+          <h2 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4] mt-2">
             Contato
           </h2>
         </div>
