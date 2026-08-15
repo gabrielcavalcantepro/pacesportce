@@ -1,25 +1,31 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type { Banner } from '@/lib/types';
 
-const slides = [
-  { id: 1, alt: 'Banner 1' },
-  { id: 2, alt: 'Banner 2' },
-];
+interface HeroBannerProps {
+  banners: Banner[];
+}
 
-export default function HeroBanner() {
+export default function HeroBanner({ banners }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
 
-  const next = useCallback(() => setCurrent((c) => (c + 1) % slides.length), []);
-  const prev = () => setCurrent((c) => (c - 1 + slides.length) % slides.length);
+  const next = useCallback(() => setCurrent((c) => (c + 1) % banners.length), [banners.length]);
+  const prev = useCallback(
+    () => setCurrent((c) => (c - 1 + banners.length) % banners.length),
+    [banners.length]
+  );
 
   useEffect(() => {
+    if (banners.length <= 1) return;
     const timer = setInterval(next, 5000);
     return () => clearInterval(timer);
-  }, [next]);
+  }, [next, banners.length]);
 
   function handleTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
@@ -29,10 +35,27 @@ export default function HeroBanner() {
   function handleTouchEnd(e: React.TouchEvent) {
     const deltaX = touchStartX.current - e.changedTouches[0].clientX;
     const deltaY = Math.abs(touchStartY.current - e.changedTouches[0].clientY);
-    // só dispara se for arrasto horizontal, não scroll vertical
     if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > deltaY) {
       deltaX > 0 ? next() : prev();
     }
+  }
+
+  if (banners.length === 0) {
+    return (
+      <section className="relative h-[480px] sm:h-[560px] lg:h-[700px] flex items-center justify-center bg-[#1e1e1e] border-b border-[#2a2a2a]">
+        <div className="text-center px-4">
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-[#f4f4f4] mb-6">
+            PaceSportce
+          </h1>
+          <Link
+            href="#produtos"
+            className="inline-block bg-[#f4f4f4] text-[#151515] font-semibold px-8 py-3 rounded-lg hover:bg-white transition-colors"
+          >
+            Ver Produtos
+          </Link>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -41,33 +64,48 @@ export default function HeroBanner() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {slides.map((slide, i) => (
+      {banners.map((banner, i) => (
         <div
-          key={slide.id}
+          key={banner.id}
           className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
             i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
           aria-hidden={i !== current}
         >
-          <picture className="absolute inset-0">
-            <source
-              media="(max-width: 767px)"
-              srcSet={`/assets/banner-${slide.id}-m.webp`}
-              type="image/webp"
-            />
-            <img
-              src={`/assets/banner-${slide.id}.webp`}
-              alt={slide.alt}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-              loading={i === 0 ? 'eager' : 'lazy'}
-              draggable={false}
-            />
-          </picture>
+          <Image
+            src={banner.image_url}
+            alt={banner.title ?? 'Banner'}
+            fill
+            className="object-cover object-center"
+            priority={i === 0}
+          />
+
+          {(banner.title || banner.subtitle || (banner.cta_text && banner.cta_link)) && (
+            <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4">
+              {banner.title && (
+                <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
+                  {banner.title}
+                </h1>
+              )}
+              {banner.subtitle && (
+                <p className="text-sm sm:text-base text-white/90 mb-6 max-w-xl">
+                  {banner.subtitle}
+                </p>
+              )}
+              {banner.cta_text && banner.cta_link && (
+                <Link
+                  href={banner.cta_link}
+                  className="inline-block bg-[#f4f4f4] text-[#151515] font-semibold px-8 py-3 rounded-lg hover:bg-white transition-colors"
+                >
+                  {banner.cta_text}
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       ))}
 
-      {/* Setas — ocultas no mobile, visíveis no sm+ */}
-      {slides.length > 1 && (
+      {banners.length > 1 && (
         <>
           <button
             onClick={prev}
@@ -83,23 +121,20 @@ export default function HeroBanner() {
           >
             <ChevronRight size={22} />
           </button>
-        </>
-      )}
 
-      {/* Dots */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                i === current ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'
-              }`}
-              aria-label={`Ir para slide ${i + 1}`}
-            />
-          ))}
-        </div>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+            {banners.map((banner, i) => (
+              <button
+                key={banner.id}
+                onClick={() => setCurrent(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === current ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/80'
+                }`}
+                aria-label={`Ir para slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
       )}
     </section>
   );

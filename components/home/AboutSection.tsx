@@ -21,7 +21,11 @@ const pillars = [
   },
 ];
 
-export default function AboutSection() {
+interface AboutSectionProps {
+  text: string;
+}
+
+export default function AboutSection({ text }: AboutSectionProps) {
   return (
     <section id="sobre" className="py-20 lg:py-28 bg-[#1e1e1e]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,14 +38,8 @@ export default function AboutSection() {
             <h2 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4] mt-2 mb-6">
               Sobre a PaceSportce
             </h2>
-            <p className="text-sm lg:text-base text-[#888888] leading-relaxed mb-4">
-              Nascemos da paixão pelo esporte e do desejo de tornar equipamentos de qualidade
-              acessíveis a todos — do atleta iniciante ao competidor experiente.
-            </p>
-            <p className="text-sm lg:text-base text-[#888888] leading-relaxed">
-              Trabalhamos com bicicletas, acessórios de natação e corrida, além de peças de
-              reposição e bicicletas semi-novas revisadas. Cada produto passa por nossa curadoria
-              antes de chegar até você.
+            <p className="text-sm lg:text-base text-[#888888] leading-relaxed whitespace-pre-line">
+              {text}
             </p>
           </div>
 

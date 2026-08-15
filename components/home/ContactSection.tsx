@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import { MessageCircle, MapPin, Clock, Mail } from 'lucide-react';
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  whatsapp: string;
+  address: string;
+  hours: string;
+}
+
+export default function ContactSection({ whatsapp, address, hours }: ContactSectionProps) {
   const [form, setForm] = useState({ nome: '', email: '', mensagem: '' });
   const [sent, setSent] = useState(false);
 
@@ -104,7 +110,7 @@ export default function ContactSection() {
           {/* Info */}
           <div className="space-y-6">
             <a
-              href="https://wa.me/5500000000000"
+              href={`https://wa.me/${whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-4 p-5 bg-[#151515] border border-[#2a2a2a] rounded-lg hover:border-[#888888] transition-colors"
@@ -124,11 +130,7 @@ export default function ContactSection() {
               </div>
               <div>
                 <p className="font-semibold text-[#f4f4f4] mb-1">Endereço</p>
-                <p className="text-sm text-[#888888]">
-                  Rua dos Esportes, 123<br />
-                  Bairro Centro — Sua Cidade, CE<br />
-                  CEP 00000-000
-                </p>
+                <p className="text-sm text-[#888888]">{address}</p>
               </div>
             </div>
 
@@ -138,11 +140,7 @@ export default function ContactSection() {
               </div>
               <div>
                 <p className="font-semibold text-[#f4f4f4] mb-1">Horário de Funcionamento</p>
-                <p className="text-sm text-[#888888]">
-                  Segunda a Sexta: 9h – 18h<br />
-                  Sábado: 9h – 13h<br />
-                  Domingo: Fechado
-                </p>
+                <p className="text-sm text-[#888888]">{hours}</p>
               </div>
             </div>
           </div>

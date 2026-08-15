@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { formatPrice } from '@/lib/products';
+import { formatPrice } from '@/lib/utils/price';
 import type { CartItem as CartItemType } from '@/lib/types';
 
 interface CartItemProps {

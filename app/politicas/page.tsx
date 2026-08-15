@@ -117,7 +117,7 @@ export default function PoliciesPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <Link href="/" className="text-sm text-[#888888] hover:text-[#f4f4f4] transition-colors">
             ← Voltar à loja

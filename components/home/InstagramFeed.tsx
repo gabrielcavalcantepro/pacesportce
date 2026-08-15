@@ -17,7 +17,11 @@ const placeholders = [
   { text: 'Chegada na piscina' },
 ];
 
-export default function InstagramFeed() {
+interface InstagramFeedProps {
+  handle: string;
+}
+
+export default function InstagramFeed({ handle }: InstagramFeedProps) {
   return (
     <section id="instagram" className="py-20 lg:py-28 bg-[#151515]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,7 +30,7 @@ export default function InstagramFeed() {
             Instagram
           </span>
           <h2 className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4] mt-2 mb-2">
-            @pacesportce
+            {handle}
           </h2>
           <p className="text-sm lg:text-base text-[#888888]">Siga-nos para novidades, dicas e promoções exclusivas.</p>
         </div>
@@ -48,7 +52,7 @@ export default function InstagramFeed() {
 
         <div className="text-center">
           <a
-            href="https://instagram.com/pacesportce"
+            href={`https://instagram.com/${handle.replace('@', '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 border border-[#f4f4f4] text-[#f4f4f4] font-semibold px-8 py-3 rounded-lg hover:bg-[#f4f4f4] hover:text-[#151515] transition-colors"

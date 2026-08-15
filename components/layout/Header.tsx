@@ -3,20 +3,23 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X, Search } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useSearch } from '@/context/SearchContext';
 
 const navLinks = [
-  { href: '/#produtos', label: 'Catálogo', sectionId: 'produtos' },
-  { href: '/#sobre', label: 'Sobre', sectionId: 'sobre' },
-  { href: '/#instagram', label: 'Instagram', sectionId: 'instagram' },
-  { href: '/#contato', label: 'Contato', sectionId: 'contato' },
+  { href: '/#produtos', label: 'Catálogo', sectionId: 'produtos' as string | null },
+  { href: '/#sobre', label: 'Sobre', sectionId: 'sobre' as string | null },
+  { href: '/#instagram', label: 'Instagram', sectionId: 'instagram' as string | null },
+  { href: '/#contato', label: 'Contato', sectionId: 'contato' as string | null },
+  { href: '/rastreio', label: 'Rastrear Pedido', sectionId: null as string | null },
 ];
 
 export default function Header() {
   const { itemCount } = useCart();
   const { query, setQuery } = useSearch();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -25,7 +28,9 @@ export default function Header() {
 
   // Intersection Observer — active nav link per section
   useEffect(() => {
-    const sectionIds = navLinks.map((l) => l.sectionId);
+    const sectionIds = navLinks
+      .map((l) => l.sectionId)
+      .filter((id): id is string => Boolean(id));
     const intersecting = new Set<string>();
 
     const observers = sectionIds.map((id) => {
@@ -97,7 +102,9 @@ export default function Header() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8 flex-1 justify-center">
             {navLinks.map((link) => {
-              const isActive = activeSection === link.sectionId;
+              const isActive = link.sectionId
+                ? activeSection === link.sectionId
+                : pathname === link.href;
               return (
                 <Link
                   key={link.href}
@@ -189,7 +196,9 @@ export default function Header() {
             </div>
           </div>
           {navLinks.map((link) => {
-            const isActive = activeSection === link.sectionId;
+            const isActive = link.sectionId
+              ? activeSection === link.sectionId
+              : pathname === link.href;
             return (
               <Link
                 key={link.href}
