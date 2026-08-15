@@ -106,10 +106,7 @@ export interface Order {
 export interface Banner {
   id: string;
   image_url: string;
-  title: string | null;
-  subtitle: string | null;
-  cta_text: string | null;
-  cta_link: string | null;
+  image_mobile_url: string | null;
   active: boolean;
   display_order: number;
   created_at: string;

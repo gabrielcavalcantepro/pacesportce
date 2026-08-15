@@ -72,35 +72,31 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
           }`}
           aria-hidden={i !== current}
         >
-          <Image
-            src={banner.image_url}
-            alt={banner.title ?? 'Banner'}
-            fill
-            className="object-cover object-center"
-            priority={i === 0}
-          />
-
-          {(banner.title || banner.subtitle || (banner.cta_text && banner.cta_link)) && (
-            <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center px-4">
-              {banner.title && (
-                <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
-                  {banner.title}
-                </h1>
-              )}
-              {banner.subtitle && (
-                <p className="text-sm sm:text-base text-white/90 mb-6 max-w-xl">
-                  {banner.subtitle}
-                </p>
-              )}
-              {banner.cta_text && banner.cta_link && (
-                <Link
-                  href={banner.cta_link}
-                  className="inline-block bg-[#f4f4f4] text-[#151515] font-semibold px-8 py-3 rounded-lg hover:bg-white transition-colors"
-                >
-                  {banner.cta_text}
-                </Link>
-              )}
-            </div>
+          {banner.image_mobile_url ? (
+            <>
+              <Image
+                src={banner.image_mobile_url}
+                alt="Banner"
+                fill
+                className="object-cover object-center sm:hidden"
+                priority={i === 0}
+              />
+              <Image
+                src={banner.image_url}
+                alt="Banner"
+                fill
+                className="object-cover object-center hidden sm:block"
+                priority={i === 0}
+              />
+            </>
+          ) : (
+            <Image
+              src={banner.image_url}
+              alt="Banner"
+              fill
+              className="object-cover object-center"
+              priority={i === 0}
+            />
           )}
         </div>
       ))}

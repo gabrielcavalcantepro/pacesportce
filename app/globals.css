@@ -36,3 +36,15 @@ input:-webkit-autofill:active {
   caret-color: #f4f4f4;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.animate-shimmer {
+  animation: shimmer 1.5s infinite linear;
+}

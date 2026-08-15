@@ -9,6 +9,7 @@ import { generateSlug } from '@/lib/utils/slug';
 import ImageUploader from '@/components/admin/ImageUploader';
 import TagVariantInput from '@/components/admin/TagVariantInput';
 import PriceInput from '@/components/admin/PriceInput';
+import CustomSelect from '@/components/admin/CustomSelect';
 import type { Category, Product, ProductVariants, VariantDimension } from '@/lib/types';
 import type { ProductInput } from '@/lib/queries/products';
 
@@ -221,14 +222,18 @@ export default function ProductForm({
             <label htmlFor="category_id" className={labelClass}>
               Categoria
             </label>
-            <select id="category_id" {...register('category_id')} className={inputClass}>
-              <option value="">Selecione...</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="category_id"
+              render={({ field }) => (
+                <CustomSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Selecione..."
+                  options={categories.map((cat) => ({ label: cat.name, value: cat.id }))}
+                />
+              )}
+            />
             {errors.category_id && (
               <p className="text-xs text-[#ef4444] mt-1">{errors.category_id.message}</p>
             )}
@@ -238,21 +243,41 @@ export default function ProductForm({
             <label htmlFor="condition" className={labelClass}>
               Condição
             </label>
-            <select id="condition" {...register('condition')} className={inputClass}>
-              <option value="new">Novo</option>
-              <option value="used">Semi-novo</option>
-            </select>
+            <Controller
+              control={control}
+              name="condition"
+              render={({ field }) => (
+                <CustomSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={[
+                    { label: 'Novo', value: 'new' },
+                    { label: 'Semi-novo', value: 'used' },
+                  ]}
+                />
+              )}
+            />
           </div>
 
           <div>
             <label htmlFor="status" className={labelClass}>
               Status
             </label>
-            <select id="status" {...register('status')} className={inputClass}>
-              <option value="active">Ativo</option>
-              <option value="inactive">Inativo</option>
-              <option value="draft">Rascunho</option>
-            </select>
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <CustomSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={[
+                    { label: 'Ativo', value: 'active' },
+                    { label: 'Inativo', value: 'inactive' },
+                    { label: 'Rascunho', value: 'draft' },
+                  ]}
+                />
+              )}
+            />
           </div>
         </div>
 

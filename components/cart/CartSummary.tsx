@@ -11,7 +11,8 @@ export default function CartSummary() {
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const allFreeShipping = items.length > 0 && items.every((i) => i.free_shipping);
-  const freteGratis = allFreeShipping || shipping?.company === 'Grátis';
+  const freteGratisFortaleza = !allFreeShipping && shipping?.company === 'Grátis';
+  const freteGratis = allFreeShipping || freteGratisFortaleza;
 
   function handleFinalize() {
     router.push('/checkout');
@@ -31,20 +32,18 @@ export default function CartSummary() {
             {freteGratis
               ? 'Frete'
               : shipping
-              ? `Frete — ${shipping.company} (${prazoTexto(shipping.service, shipping.delivery_time)})`
+              ? `Frete (${shipping.company} — ${prazoTexto(shipping.service, shipping.delivery_time)})`
               : 'Frete'}
           </span>
-          <span
-            className={
-              freteGratis
-                ? 'text-[#22c55e] font-medium shrink-0'
-                : shipping
-                ? 'text-[#f4f4f4] shrink-0'
-                : 'text-[#888888] shrink-0'
-            }
-          >
-            {freteGratis ? 'Grátis' : shipping ? formatPrice(shipping.price) : 'A calcular'}
-          </span>
+          {freteGratis ? (
+            <span className="text-[#22c55e] font-medium shrink-0">
+              {allFreeShipping ? 'Grátis' : 'Grátis para Fortaleza'}
+            </span>
+          ) : shipping ? (
+            <span className="text-[#f4f4f4] shrink-0">{formatPrice(shipping.price)}</span>
+          ) : (
+            <span className="text-[#f59e0b] shrink-0">Calcule acima</span>
+          )}
         </div>
       </div>
 

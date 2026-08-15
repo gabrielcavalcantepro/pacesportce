@@ -12,6 +12,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/price';
+import { prazoTexto } from '@/lib/utils/frete';
 import { createOrder } from '@/lib/queries/orders';
 import type { CheckoutCustomer } from '@/lib/types';
 
@@ -202,16 +203,26 @@ export default function CheckoutPage() {
         creditCard: 'all' as const,
         debitCard: 'all' as const,
         bankTransfer: 'all' as const,
-        // Mercado Pago exige valor mínimo de R$ 5,00 para boleto.
-        ...(totalEmReais >= 5 ? { ticket: 'all' as const } : {}),
+        ticket: 'all' as const,
       },
       visual: {
         style: {
           theme: 'dark' as const,
+          customVariables: {
+            baseColor: '#f4f4f4',
+            baseColorFirstVariant: '#2a2a2a',
+            baseColorSecondVariant: '#1e1e1e',
+            textPrimaryColor: '#f4f4f4',
+            textSecondaryColor: '#888888',
+            borderRadiusSmall: '8px',
+            borderRadiusMedium: '12px',
+            borderRadiusLarge: '16px',
+            buttonTextColor: '#151515',
+          },
         },
       },
     }),
-    [totalEmReais]
+    []
   );
 
   async function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -361,7 +372,8 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const allFreeShipping = items.length > 0 && items.every((i) => i.free_shipping);
-  const freteGratis = allFreeShipping || shipping?.company === 'Grátis';
+  const freteGratisFortaleza = !allFreeShipping && shipping?.company === 'Grátis';
+  const freteGratis = allFreeShipping || freteGratisFortaleza;
 
   console.log('MP amount (reais):', totalEmReais);
 
@@ -602,19 +614,21 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className={freteGratis ? 'text-[#22c55e] font-medium' : 'text-[#888888]'}>
-                    {freteGratis ? 'Frete' : shipping ? `Frete — ${shipping.company}` : 'Frete'}
+                    {freteGratis
+                      ? 'Frete'
+                      : shipping
+                      ? `Frete (${shipping.company} — ${prazoTexto(shipping.service, shipping.delivery_time)})`
+                      : 'Frete'}
                   </span>
-                  <span
-                    className={
-                      freteGratis
-                        ? 'text-[#22c55e] font-medium shrink-0'
-                        : shipping
-                        ? 'text-[#f4f4f4] shrink-0'
-                        : 'text-[#888888] shrink-0'
-                    }
-                  >
-                    {freteGratis ? 'Grátis' : shipping ? formatPrice(shipping.price) : 'A calcular'}
-                  </span>
+                  {freteGratis ? (
+                    <span className="text-[#22c55e] font-medium shrink-0">
+                      {allFreeShipping ? 'Grátis' : 'Grátis para Fortaleza'}
+                    </span>
+                  ) : shipping ? (
+                    <span className="text-[#f4f4f4] shrink-0">{formatPrice(shipping.price)}</span>
+                  ) : (
+                    <span className="text-[#f59e0b] shrink-0">Calcule acima</span>
+                  )}
                 </div>
               </div>
 

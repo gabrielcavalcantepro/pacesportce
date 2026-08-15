@@ -5,6 +5,7 @@ import { getProducts } from '@/lib/queries/products';
 import { getCategories } from '@/lib/queries/categories';
 import { formatPrice } from '@/lib/utils/price';
 import ProductRowActions from './ProductRowActions';
+import ProdutosFilters from './ProdutosFilters';
 
 const STATUS_LABEL: Record<string, string> = {
   active: 'Ativo',
@@ -49,57 +50,12 @@ export default async function AdminProdutosPage({
         </Link>
       </div>
 
-      <form
-        method="get"
-        className="flex flex-wrap items-end gap-3 bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl p-4 mb-6"
-      >
-        <div>
-          <label className="block text-xs text-[#888888] mb-1">Status</label>
-          <select
-            name="status"
-            defaultValue={status || 'todos'}
-            className="bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
-          >
-            <option value="todos">Todos</option>
-            <option value="active">Ativo</option>
-            <option value="inactive">Inativo</option>
-            <option value="draft">Rascunho</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs text-[#888888] mb-1">Categoria</label>
-          <select
-            name="categoria"
-            defaultValue={categoria || ''}
-            className="bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
-          >
-            <option value="">Todas</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex-1 min-w-[180px]">
-          <label className="block text-xs text-[#888888] mb-1">Buscar por nome ou SKU</label>
-          <input
-            type="text"
-            name="busca"
-            defaultValue={busca || ''}
-            className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-[#2a2a2a] text-[#f4f4f4] rounded-lg px-4 py-2 text-sm hover:bg-[#3a3a3a] transition-colors"
-        >
-          Filtrar
-        </button>
-      </form>
+      <ProdutosFilters
+        status={status || 'todos'}
+        categoria={categoria || ''}
+        busca={busca || ''}
+        categories={categories}
+      />
 
       <div className="bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl overflow-x-auto">
         <table className="w-full text-sm min-w-[900px]">
