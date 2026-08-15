@@ -14,9 +14,13 @@ function InstagramIcon({ size = 24 }: { size?: number }) {
 
 async function getInstagramPosts(): Promise<InstagramPost[]> {
   try {
+    // Sem cache aqui de propósito: /api/instagram já cacheia a chamada ao Meta por
+    // 1h (revalidate: 3600). Colocar outra camada de cache em cima, com a mesma URL
+    // estável, corre o risco de travar numa resposta antiga (ex: antes de um token
+    // ser corrigido) pelo tempo total do revalidate, sem nenhum ganho de performance.
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/instagram`, {
-      next: { revalidate: 3600 },
+      cache: 'no-store',
     });
     const data = await res.json();
     return data.posts ?? [];
