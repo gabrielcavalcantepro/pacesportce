@@ -5,17 +5,54 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { requireUser } from '@/lib/supabase/requireUser';
 import type { ActionResult, CartItem, CheckoutCustomer, Order, Shipping } from '@/lib/types';
 
-export async function getOrders(): Promise<Order[]> {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
+export type OrderFilters = {
+  status?: Order['status'];
+  paymentMethod?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+};
 
+export async function getOrders(filters?: OrderFilters): Promise<Order[]> {
+  try {
+    let query = supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false });
+
+    if (filters?.status) {
+      query = query.eq('status', filters.status);
+    }
+    if (filters?.paymentMethod) {
+      query = query.eq('payment_method', filters.paymentMethod);
+    }
+    if (filters?.dateFrom) {
+      query = query.gte('created_at', `${filters.dateFrom}T00:00:00`);
+    }
+    if (filters?.dateTo) {
+      query = query.lte('created_at', `${filters.dateTo}T23:59:59`);
+    }
+    if (filters?.search) {
+      const term = filters.search.replace(/[,()]/g, '');
+      query = query.or(`order_number.ilike.%${term}%,customer_name.ilike.%${term}%`);
+    }
+
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
     return data as Order[];
   } catch {
     return [];
+  }
+}
+
+export async function getPendingOrdersCount(): Promise<number> {
+  try {
+    const { count, error } = await supabaseAdmin
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -92,6 +129,8 @@ export type UpdateOrderInput = {
   status?: Order['status'];
   tracking_code?: string | null;
   notes?: string | null;
+  shipping_carrier?: string | null;
+  shipping_service?: string | null;
 };
 
 export async function updateOrder(
@@ -104,6 +143,29 @@ export async function updateOrder(
     const { data: row, error } = await supabaseAdmin
       .from('orders')
       .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath('/admin/pedidos');
+    return { success: true, data: row as Order };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : 'Erro desconhecido.' };
+  }
+}
+
+export async function updateOrderStatus(
+  id: string,
+  status: Order['status']
+): Promise<ActionResult<Order>> {
+  try {
+    await requireUser();
+
+    const { data: row, error } = await supabaseAdmin
+      .from('orders')
+      .update({ status })
       .eq('id', id)
       .select()
       .single();

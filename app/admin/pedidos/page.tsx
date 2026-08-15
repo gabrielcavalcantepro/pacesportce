@@ -1,32 +1,118 @@
 import Link from 'next/link';
 import { getOrders } from '@/lib/queries/orders';
-import { formatPrice } from '@/lib/utils/price';
 import type { Order } from '@/lib/types';
+import OrderRow from './OrderRow';
 
-const STATUS_LABEL: Record<Order['status'], string> = {
-  pending: 'Aguardando confirmação',
-  confirmed: 'Pedido confirmado',
-  preparing: 'Em preparação',
-  shipped: 'Enviado',
-  delivered: 'Entregue',
-  cancelled: 'Cancelado',
+type SearchParams = {
+  status?: string;
+  pagamento?: string;
+  dataInicial?: string;
+  dataFinal?: string;
+  busca?: string;
 };
 
-const STATUS_CLASS: Record<Order['status'], string> = {
-  pending: 'bg-[#f59e0b]/15 text-[#f59e0b]',
-  confirmed: 'bg-[#3b82f6]/15 text-[#3b82f6]',
-  preparing: 'bg-[#a855f7]/15 text-[#a855f7]',
-  shipped: 'bg-[#f97316]/15 text-[#f97316]',
-  delivered: 'bg-[#22c55e]/15 text-[#22c55e]',
-  cancelled: 'bg-[#ef4444]/15 text-[#ef4444]',
-};
+export default async function AdminPedidosPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const { status, pagamento, dataInicial, dataFinal, busca } = await searchParams;
 
-export default async function AdminPedidosPage() {
-  const orders = await getOrders();
+  const orders = await getOrders({
+    status: status && status !== 'todos' ? (status as Order['status']) : undefined,
+    paymentMethod: pagamento && pagamento !== 'todos' ? pagamento : undefined,
+    dateFrom: dataInicial || undefined,
+    dateTo: dataFinal || undefined,
+    search: busca || undefined,
+  });
+
+  const hasFilters = Boolean(status || pagamento || dataInicial || dataFinal || busca);
 
   return (
     <div>
       <h1 className="text-2xl font-semibold text-[#f4f4f4] mb-6">Pedidos</h1>
+
+      <form
+        method="get"
+        className="flex flex-wrap items-end gap-3 bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl p-4 mb-6"
+      >
+        <div>
+          <label className="block text-xs text-[#888888] mb-1">Status</label>
+          <select
+            name="status"
+            defaultValue={status || 'todos'}
+            className="bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
+          >
+            <option value="todos">Todos</option>
+            <option value="pending">Aguardando</option>
+            <option value="confirmed">Confirmado</option>
+            <option value="preparing">Em Preparação</option>
+            <option value="shipped">Enviado</option>
+            <option value="delivered">Entregue</option>
+            <option value="cancelled">Cancelado</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs text-[#888888] mb-1">Método de Pagamento</label>
+          <select
+            name="pagamento"
+            defaultValue={pagamento || 'todos'}
+            className="bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
+          >
+            <option value="todos">Todos</option>
+            <option value="pix">PIX</option>
+            <option value="credit_card">Cartão</option>
+            <option value="boleto">Boleto</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs text-[#888888] mb-1">Data inicial</label>
+          <input
+            type="date"
+            name="dataInicial"
+            defaultValue={dataInicial || ''}
+            className="bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs text-[#888888] mb-1">Data final</label>
+          <input
+            type="date"
+            name="dataFinal"
+            defaultValue={dataFinal || ''}
+            className="bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
+          />
+        </div>
+
+        <div className="flex-1 min-w-[180px]">
+          <label className="block text-xs text-[#888888] mb-1">Buscar por número ou cliente</label>
+          <input
+            type="text"
+            name="busca"
+            defaultValue={busca || ''}
+            className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="bg-[#2a2a2a] text-[#f4f4f4] rounded-lg px-4 py-2 text-sm hover:bg-[#3a3a3a] transition-colors"
+        >
+          Filtrar
+        </button>
+
+        {hasFilters && (
+          <Link
+            href="/admin/pedidos"
+            className="text-sm text-[#888888] hover:text-[#f4f4f4] transition-colors px-2 py-2"
+          >
+            Limpar filtros
+          </Link>
+        )}
+      </form>
 
       <div className="bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl overflow-x-auto">
         <table className="w-full text-sm min-w-[900px]">
@@ -34,8 +120,9 @@ export default async function AdminPedidosPage() {
             <tr className="border-b border-[#2a2a2a] text-left text-[#888888]">
               <th className="p-4 font-normal">Número</th>
               <th className="p-4 font-normal">Cliente</th>
-              <th className="p-4 font-normal">Total</th>
               <th className="p-4 font-normal">Itens</th>
+              <th className="p-4 font-normal">Total</th>
+              <th className="p-4 font-normal">Pagamento</th>
               <th className="p-4 font-normal">Status</th>
               <th className="p-4 font-normal">Data</th>
               <th className="p-4 font-normal">Ações</th>
@@ -43,35 +130,12 @@ export default async function AdminPedidosPage() {
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className="border-b border-[#2a2a2a] last:border-0">
-                <td className="p-4 text-[#f4f4f4]">{order.order_number}</td>
-                <td className="p-4 text-[#f4f4f4]">{order.customer_name}</td>
-                <td className="p-4 text-[#f4f4f4]">{formatPrice(order.total)}</td>
-                <td className="p-4 text-[#888888]">{order.items.length}</td>
-                <td className="p-4">
-                  <span
-                    className={`text-xs font-medium rounded-full px-2.5 py-1 ${STATUS_CLASS[order.status]}`}
-                  >
-                    {STATUS_LABEL[order.status]}
-                  </span>
-                </td>
-                <td className="p-4 text-[#888888]">
-                  {new Date(order.created_at).toLocaleDateString('pt-BR')}
-                </td>
-                <td className="p-4">
-                  <Link
-                    href={`/admin/pedidos/${order.id}`}
-                    className="text-[#888888] hover:text-[#f4f4f4] transition-colors text-xs"
-                  >
-                    Ver detalhes
-                  </Link>
-                </td>
-              </tr>
+              <OrderRow key={order.id} order={order} />
             ))}
 
             {orders.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-[#888888]">
+                <td colSpan={8} className="p-8 text-center text-[#888888]">
                   Nenhum pedido encontrado.
                 </td>
               </tr>

@@ -3,8 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
+import { Loader2, Printer } from 'lucide-react';
 import { getOrderById, updateOrder } from '@/lib/queries/orders';
 import { formatPrice } from '@/lib/utils/price';
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_CLASS,
+  PAYMENT_STATUS_LABEL,
+} from '@/lib/utils/orderLabels';
 import type { Order } from '@/lib/types';
 
 const STATUS_OPTIONS: { value: Order['status']; label: string }[] = [
@@ -16,25 +22,6 @@ const STATUS_OPTIONS: { value: Order['status']; label: string }[] = [
   { value: 'cancelled', label: 'Cancelado' },
 ];
 
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  credit_card: 'Cartão de Crédito',
-  debit_card: 'Cartão de Débito',
-  debitCard: 'Cartão de Débito',
-  pix: 'PIX',
-  bank_transfer: 'PIX',
-  boleto: 'Boleto',
-  ticket: 'Boleto',
-};
-
-const PAYMENT_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  approved: { label: 'Aprovado', className: 'bg-[#22c55e]/15 text-[#22c55e]' },
-  pending: { label: 'Pendente', className: 'bg-[#f59e0b]/15 text-[#f59e0b]' },
-  in_process: { label: 'Em análise', className: 'bg-[#f59e0b]/15 text-[#f59e0b]' },
-  rejected: { label: 'Rejeitado', className: 'bg-[#ef4444]/15 text-[#ef4444]' },
-  cancelled: { label: 'Cancelado', className: 'bg-[#ef4444]/15 text-[#ef4444]' },
-  refunded: { label: 'Reembolsado', className: 'bg-[#ef4444]/15 text-[#ef4444]' },
-};
-
 export default function AdminOrderDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
@@ -43,11 +30,16 @@ export default function AdminOrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<Order['status']>('pending');
   const [trackingCode, setTrackingCode] = useState('');
+  const [shippingCarrier, setShippingCarrier] = useState('');
+  const [shippingService, setShippingService] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
     null
   );
+  const [labelLoading, setLabelLoading] = useState(false);
+  const [labelError, setLabelError] = useState<string | null>(null);
+  const [labelUrl, setLabelUrl] = useState<string | null>(null);
 
   useEffect(() => {
     getOrderById(id).then((data) => {
@@ -55,7 +47,10 @@ export default function AdminOrderDetailPage() {
       if (data) {
         setStatus(data.status);
         setTrackingCode(data.tracking_code ?? '');
+        setShippingCarrier(data.shipping_carrier ?? '');
+        setShippingService(data.shipping_service ?? '');
         setNotes(data.notes ?? '');
+        setLabelUrl(data.label_url ?? null);
       }
       setLoading(false);
     });
@@ -68,6 +63,8 @@ export default function AdminOrderDetailPage() {
     const result = await updateOrder(id, {
       status,
       tracking_code: trackingCode.trim() || null,
+      shipping_carrier: shippingCarrier.trim() || null,
+      shipping_service: shippingService.trim() || null,
       notes: notes.trim() || null,
     });
 
@@ -78,6 +75,29 @@ export default function AdminOrderDetailPage() {
       if (result.data) setOrder(result.data);
     } else {
       setMessage({ type: 'error', text: result.error ?? 'Erro ao salvar alterações.' });
+    }
+  }
+
+  async function handleGerarEtiqueta() {
+    setLabelLoading(true);
+    setLabelError(null);
+    try {
+      const res = await fetch('/api/melhorenvio/gerar-etiqueta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: id }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setLabelError(data.error ?? 'Erro ao gerar etiqueta.');
+        return;
+      }
+      setLabelUrl(data.label_url);
+      setStatus('preparing');
+    } catch {
+      setLabelError('Erro ao gerar etiqueta. Tente novamente.');
+    } finally {
+      setLabelLoading(false);
     }
   }
 
@@ -170,11 +190,10 @@ export default function AdminOrderDetailPage() {
               {order.payment_status ? (
                 <span
                   className={`text-xs font-medium rounded-full px-3 py-1 ${
-                    PAYMENT_STATUS_CONFIG[order.payment_status]?.className ??
-                    'bg-[#2a2a2a] text-[#888888]'
+                    PAYMENT_STATUS_CLASS[order.payment_status] ?? 'bg-[#2a2a2a] text-[#888888]'
                   }`}
                 >
-                  {PAYMENT_STATUS_CONFIG[order.payment_status]?.label ?? order.payment_status}
+                  {PAYMENT_STATUS_LABEL[order.payment_status] ?? order.payment_status}
                 </span>
               ) : (
                 <span className="text-sm text-[#888888]">Não informado</span>
@@ -184,6 +203,71 @@ export default function AdminOrderDetailPage() {
             <div className="flex justify-between items-center">
               <span className="text-sm text-[#888888]">ID da transação MP</span>
               <span className="text-sm text-[#f4f4f4]">{order.payment_id ?? 'Não informado'}</span>
+            </div>
+          </section>
+
+          <section className="bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl p-6 space-y-4">
+            <h2 className="text-base font-semibold text-[#f4f4f4] mb-2">Rastreamento e Envio</h2>
+
+            <div>
+              <label className="block text-sm text-[#888888] mb-1.5">Código de rastreio</label>
+              <input
+                value={trackingCode}
+                onChange={(e) => setTrackingCode(e.target.value)}
+                placeholder="Ex: BR1234567890"
+                className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-[#888888] mb-1.5">Transportadora</label>
+                <input
+                  value={shippingCarrier}
+                  onChange={(e) => setShippingCarrier(e.target.value)}
+                  placeholder="Ex: Correios"
+                  className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#888888] mb-1.5">Serviço</label>
+                <input
+                  value={shippingService}
+                  onChange={(e) => setShippingService(e.target.value)}
+                  placeholder="Ex: PAC, SEDEX"
+                  className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
+                />
+              </div>
+            </div>
+
+            {labelError && <p className="text-xs text-[#ef4444]">{labelError}</p>}
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleGerarEtiqueta}
+                disabled={labelLoading}
+                className="flex items-center gap-2 bg-[#2a2a2a] text-[#f4f4f4] font-medium rounded-lg px-4 py-2.5 text-sm hover:bg-[#3a3a3a] transition-colors disabled:opacity-60"
+              >
+                {labelLoading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Printer size={16} />
+                )}
+                {labelLoading ? 'Gerando...' : 'Gerar Etiqueta Melhor Envio'}
+              </button>
+
+              {labelUrl && (
+                <a
+                  href={labelUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 bg-[#22c55e]/15 text-[#22c55e] font-medium rounded-lg px-4 py-2.5 text-sm hover:bg-[#22c55e]/25 transition-colors"
+                >
+                  <Printer size={16} />
+                  Imprimir Etiqueta
+                </a>
+              )}
             </div>
           </section>
         </div>
@@ -204,16 +288,6 @@ export default function AdminOrderDetailPage() {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className="block text-sm text-[#888888] mb-1.5">Código de rastreio</label>
-            <input
-              value={trackingCode}
-              onChange={(e) => setTrackingCode(e.target.value)}
-              placeholder="Ex: BR1234567890"
-              className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
-            />
           </div>
 
           <div>

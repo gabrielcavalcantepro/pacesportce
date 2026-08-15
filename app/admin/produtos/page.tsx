@@ -84,7 +84,7 @@ export default async function AdminProdutosPage({
         </div>
 
         <div className="flex-1 min-w-[180px]">
-          <label className="block text-xs text-[#888888] mb-1">Buscar por nome</label>
+          <label className="block text-xs text-[#888888] mb-1">Buscar por nome ou SKU</label>
           <input
             type="text"
             name="busca"
@@ -107,6 +107,7 @@ export default async function AdminProdutosPage({
             <tr className="border-b border-[#2a2a2a] text-left text-[#888888]">
               <th className="p-4 font-normal">Imagem</th>
               <th className="p-4 font-normal">Produto</th>
+              <th className="p-4 font-normal">SKU</th>
               <th className="p-4 font-normal">Categoria</th>
               <th className="p-4 font-normal">Preço</th>
               <th className="p-4 font-normal">Status</th>
@@ -135,6 +136,7 @@ export default async function AdminProdutosPage({
                   <p className="text-[#f4f4f4]">{product.name}</p>
                   <p className="text-xs text-[#888888]">{product.slug}</p>
                 </td>
+                <td className="p-4 text-[#888888]">{product.sku ?? '—'}</td>
                 <td className="p-4 text-[#888888]">{product.category?.name ?? '—'}</td>
                 <td className="p-4 text-[#f4f4f4]">{formatPrice(product.price)}</td>
                 <td className="p-4">
@@ -170,7 +172,7 @@ export default async function AdminProdutosPage({
 
             {products.length === 0 && (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-[#888888]">
+                <td colSpan={9} className="p-8 text-center text-[#888888]">
                   Nenhum produto encontrado.
                 </td>
               </tr>

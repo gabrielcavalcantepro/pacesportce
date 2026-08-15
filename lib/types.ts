@@ -26,6 +26,7 @@ export interface Product {
   id: string;
   name: string;
   slug: string;
+  sku: string | null;
   description: string | null;
   full_description: string | null;
   price: number;
@@ -94,6 +95,10 @@ export interface Order {
   payment_status?: string | null;
   shipping_address?: ShippingAddress | null;
   shipping_cost?: number;
+  shipping_carrier?: string | null;
+  shipping_service?: string | null;
+  melhor_envio_order_id?: string | null;
+  label_url?: string | null;
   created_at: string;
   updated_at: string;
 }

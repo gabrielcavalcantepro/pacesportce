@@ -19,6 +19,7 @@ const specSchema = z.object({
 
 const productSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
+  sku: z.string().optional(),
   slug: z.string().min(1, 'Slug é obrigatório'),
   category_id: z.string().min(1, 'Selecione uma categoria'),
   condition: z.enum(['new', 'used']),
@@ -68,6 +69,7 @@ function recalculateCombinations(
 function toFormValues(product?: Partial<Product>): FormValues {
   return {
     name: product?.name ?? '',
+    sku: product?.sku ?? '',
     slug: product?.slug ?? '',
     category_id: product?.category_id ?? '',
     condition: product?.condition ?? 'new',
@@ -108,7 +110,6 @@ export default function ProductForm({
   isLoading,
 }: ProductFormProps) {
   const [images, setImages] = useState<string[]>(defaultValues?.images ?? []);
-  const [slugTouched, setSlugTouched] = useState(Boolean(defaultValues?.slug));
   const [variants, setVariants] = useState<ProductVariants>(defaultValues?.variants ?? emptyVariants);
 
   const {
@@ -160,6 +161,7 @@ export default function ProductForm({
       slug: values.slug,
       description: values.description?.trim() || null,
       full_description: values.fullDescription?.trim() || null,
+      sku: values.sku?.trim() || null,
       price: values.price,
       compare_at_price: values.compareAtPrice > 0 ? values.compareAtPrice : null,
       images,
@@ -195,9 +197,7 @@ export default function ProductForm({
           <input
             id="name"
             {...register('name', {
-              onChange: (e) => {
-                if (!slugTouched) setValue('slug', generateSlug(e.target.value));
-              },
+              onChange: (e) => setValue('slug', generateSlug(e.target.value)),
             })}
             className={inputClass}
           />
@@ -205,15 +205,15 @@ export default function ProductForm({
         </div>
 
         <div>
-          <label htmlFor="slug" className={labelClass}>
-            Slug
+          <label htmlFor="sku" className={labelClass}>
+            SKU (Código do produto)
           </label>
           <input
-            id="slug"
-            {...register('slug', { onChange: () => setSlugTouched(true) })}
+            id="sku"
+            placeholder="Ex: BIKE-MTB-001"
+            {...register('sku')}
             className={inputClass}
           />
-          {errors.slug && <p className="text-xs text-[#ef4444] mt-1">{errors.slug.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

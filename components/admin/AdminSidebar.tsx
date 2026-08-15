@@ -25,7 +25,7 @@ const navItems = [
   { href: '/admin/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ pendingOrdersCount = 0 }: { pendingOrdersCount?: number }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -53,6 +53,7 @@ export default function AdminSidebar() {
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
+          const showBadge = item.href === '/admin/pedidos' && pendingOrdersCount > 0;
           return (
             <Link
               key={item.href}
@@ -65,6 +66,11 @@ export default function AdminSidebar() {
             >
               <Icon size={18} />
               {item.label}
+              {showBadge && (
+                <span className="ml-auto flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#ef4444] text-white text-[10px] font-semibold">
+                  {pendingOrdersCount}
+                </span>
+              )}
             </Link>
           );
         })}

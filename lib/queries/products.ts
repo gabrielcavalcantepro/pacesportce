@@ -29,7 +29,8 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
     query = query.eq('category_id', filters.category_id);
   }
   if (filters?.search) {
-    query = query.ilike('name', `%${filters.search}%`);
+    const term = filters.search.replace(/[,()]/g, '');
+    query = query.or(`name.ilike.%${term}%,sku.ilike.%${term}%`);
   }
 
   const { data, error } = await query;
