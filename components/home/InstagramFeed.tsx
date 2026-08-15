@@ -41,13 +41,10 @@ export default async function InstagramFeed({ handle }: InstagramFeedProps) {
     <section id="instagram" className="py-20 lg:py-28 bg-[#151515]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-2 mb-2 text-[#f4f4f4]">
-            <InstagramIcon size={24} />
-            <span className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold">
-              {displayHandle}
-            </span>
-          </div>
-          <p className="text-sm lg:text-base text-[#888888]">Nos siga no Instagram</p>
+          <span className="font-display text-[22px] sm:text-[28px] lg:text-[36px] font-bold text-[#f4f4f4]">
+            {displayHandle}
+          </span>
+          <p className="text-sm lg:text-base text-[#888888] mt-2">Nos siga no Instagram</p>
         </div>
 
         {/* 3x2 grid */}
@@ -71,16 +68,6 @@ export default async function InstagramFeed({ handle }: InstagramFeedProps) {
                   <div className="absolute inset-0 bg-[#151515]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <ExternalLink size={22} className="text-[#f4f4f4]" />
                   </div>
-                  {post.media_type === 'VIDEO' && (
-                    <span className="absolute top-2 right-2 text-sm leading-none drop-shadow">
-                      🎥
-                    </span>
-                  )}
-                  {post.media_type === 'CAROUSEL_ALBUM' && (
-                    <span className="absolute top-2 right-2 text-sm leading-none drop-shadow">
-                      📷
-                    </span>
-                  )}
                 </a>
               ))
             : Array.from({ length: 6 }).map((_, i) => (
