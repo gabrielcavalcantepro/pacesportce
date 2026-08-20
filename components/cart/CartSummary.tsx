@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/price';
@@ -8,6 +9,7 @@ import { prazoTexto } from '@/lib/utils/frete';
 export default function CartSummary() {
   const { items, total, shipping } = useCart();
   const router = useRouter();
+  const [freteError, setFreteError] = useState(false);
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const allFreeShipping = items.length > 0 && items.every((i) => i.free_shipping);
@@ -15,6 +17,11 @@ export default function CartSummary() {
   const freteGratis = allFreeShipping || freteGratisFortaleza;
 
   function handleFinalize() {
+    if (!freteGratis && !shipping) {
+      setFreteError(true);
+      return;
+    }
+    setFreteError(false);
     router.push('/checkout');
   }
 
@@ -51,6 +58,12 @@ export default function CartSummary() {
         <span className="text-[#f4f4f4]">Total</span>
         <span className="text-[#f4f4f4] text-lg">{formatPrice(total)}</span>
       </div>
+
+      {freteError && (
+        <p className="text-sm text-[#ef4444]">
+          Selecione uma opção de frete acima antes de finalizar a compra.
+        </p>
+      )}
 
       <button
         onClick={handleFinalize}

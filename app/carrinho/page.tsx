@@ -14,9 +14,12 @@ export default function CartPage() {
 
   const allFreeShipping = items.length > 0 && items.every((item) => item.free_shipping);
 
+  // Itens com frete grátis (configurado por produto no admin) não entram no cálculo
+  // de frete — mesmo num carrinho misto, só cobra o frete da parte não-grátis.
   const produtosFrete = items
     .filter(
       (item) =>
+        !item.free_shipping &&
         item.weight != null && item.width != null && item.height != null && item.length != null
     )
     .map((item) => ({
@@ -66,7 +69,7 @@ export default function CartPage() {
                 <h2 className="font-semibold text-[#f4f4f4] text-lg mb-4">Calcular Frete</h2>
                 {allFreeShipping ? (
                   <p className="text-sm text-[#22c55e] font-medium">
-                    ✓ Frete grátis para todos os itens deste carrinho.
+                    Você tem frete grátis!
                   </p>
                 ) : produtosFrete.length > 0 ? (
                   <FreteCalculator produtos={produtosFrete} selectable />

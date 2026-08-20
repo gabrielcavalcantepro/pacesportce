@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/price';
 import { prazoTexto } from '@/lib/utils/frete';
@@ -23,6 +23,8 @@ type FreteCalculatorProps = {
   selectable?: boolean;
 };
 
+const LAST_CEP_STORAGE_KEY = 'pacesportce_last_cep';
+
 function maskCep(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 8);
   if (digits.length <= 5) return digits;
@@ -36,10 +38,7 @@ export default function FreteCalculator({ produtos, selectable = true }: FreteCa
   const [resultado, setResultado] = useState<FreteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const cepLimpo = cep.replace(/\D/g, '');
-
+  async function calcularFrete(cepLimpo: string) {
     if (cepLimpo.length !== 8) {
       setError('Digite um CEP válido com 8 dígitos.');
       return;
@@ -63,6 +62,7 @@ export default function FreteCalculator({ produtos, selectable = true }: FreteCa
       }
 
       setResultado(data as FreteResponse);
+      localStorage.setItem(LAST_CEP_STORAGE_KEY, cepLimpo);
 
       if (data.gratis) {
         setShipping({
@@ -78,6 +78,24 @@ export default function FreteCalculator({ produtos, selectable = true }: FreteCa
     } finally {
       setLoading(false);
     }
+  }
+
+  // Reaproveita o último CEP já calculado (na página do produto ou no carrinho) para
+  // o cliente não ter que digitar de novo. Recalcula na hora porque os produtos
+  // considerados mudam entre as páginas (um único item vs. o carrinho inteiro).
+  useEffect(() => {
+    if (produtos.length === 0) return;
+    const storedCep = localStorage.getItem(LAST_CEP_STORAGE_KEY);
+    if (storedCep && storedCep.length === 8) {
+      setCep(maskCep(storedCep));
+      calcularFrete(storedCep);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await calcularFrete(cep.replace(/\D/g, ''));
   }
 
   function handleSelect(opcao: FreteOpcaoSimples) {
