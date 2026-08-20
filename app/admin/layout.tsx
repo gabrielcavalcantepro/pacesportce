@@ -1,7 +1,5 @@
-import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import PendingOrdersBadge from '@/components/admin/PendingOrdersBadge';
 
 export default async function AdminLayout({
   children,
@@ -20,18 +18,11 @@ export default async function AdminLayout({
     return <div className="min-h-screen bg-[#0f0f0f]">{children}</div>;
   }
 
-  // The pending-orders count is wrapped in its own Suspense boundary so this
-  // uncached fetch doesn't block navigation into <main> — the sidebar renders
-  // immediately and the badge streams in once the count resolves.
+  // AdminSidebar busca a contagem de pedidos pendentes no cliente (precisa do
+  // localStorage para saber o que o admin já viu), não mais aqui no servidor.
   return (
     <div className="flex min-h-screen bg-[#0f0f0f] text-[#f4f4f4]">
-      <AdminSidebar
-        pendingOrdersBadge={
-          <Suspense fallback={null}>
-            <PendingOrdersBadge />
-          </Suspense>
-        }
-      />
+      <AdminSidebar />
       <main className="flex-1 p-8">{children}</main>
     </div>
   );

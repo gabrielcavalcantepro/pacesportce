@@ -97,10 +97,8 @@ export default function CheckoutPage() {
   const [cepError, setCepError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [saveData, setSaveData] = useState(false);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
-  const [saveCard, setSaveCard] = useState(false);
 
   const {
     register,
@@ -139,15 +137,14 @@ export default function CheckoutPage() {
     }
   }, [hydrated, items, router]);
 
-  // Pré-preenche o formulário com dados salvos de uma compra anterior e, se houver
-  // um customerId salvo, busca os cartões desse cliente diretamente (sem precisar
-  // esperar o onBlur do e-mail).
+  // Pré-preenche o formulário se sobrou algo salvo de antes de remover as opções de
+  // "salvar dados"/"salvar cartão" e, se houver um customerId salvo, busca os
+  // cartões desse cliente diretamente (sem precisar esperar o onBlur do e-mail).
   useEffect(() => {
     const saved = localStorage.getItem(CUSTOMER_STORAGE_KEY);
     if (saved) {
       try {
         reset(JSON.parse(saved));
-        setSaveData(true);
       } catch {
         // ignora dados corrompidos
       }
@@ -332,26 +329,6 @@ export default function CheckoutPage() {
         );
       }
 
-      if (saveData) {
-        localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(customer));
-        if (customerId) localStorage.setItem(CUSTOMER_ID_STORAGE_KEY, customerId);
-      } else {
-        localStorage.removeItem(CUSTOMER_STORAGE_KEY);
-        localStorage.removeItem(CUSTOMER_ID_STORAGE_KEY);
-      }
-
-      if (saveCard && customerId && brickData.formData.token) {
-        try {
-          await fetch('/api/mp/save-card', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customerId, token: brickData.formData.token }),
-          });
-        } catch {
-          // salvar cartão é best-effort; não bloqueia a confirmação do pedido
-        }
-      }
-
       const method = mapBrickPaymentType(brickData.paymentType);
       const status = data.payment_status;
       orderCompletedRef.current = true;
@@ -361,7 +338,7 @@ export default function CheckoutPage() {
       setSubmitting(false);
       setFormError('Erro ao processar pagamento. Tente novamente.');
     }
-  }, [trigger, getValues, items, shipping, total, clearCart, router, saveData, saveCard, customerId]);
+  }, [trigger, getValues, items, shipping, total, clearCart, router, customerId]);
 
   const handleBrickError = useCallback((error: unknown) => {
     console.error('MP Brick error:', error);
@@ -554,24 +531,6 @@ export default function CheckoutPage() {
                   ))}
                 </div>
               )}
-
-              <label className="flex items-center gap-2 text-sm text-[#888888] mb-3">
-                <input
-                  type="checkbox"
-                  checked={saveData}
-                  onChange={(e) => setSaveData(e.target.checked)}
-                />
-                Salvar meus dados para próximas compras
-              </label>
-
-              <label className="flex items-center gap-2 text-sm text-[#888888] mb-3">
-                <input
-                  type="checkbox"
-                  checked={saveCard}
-                  onChange={(e) => setSaveCard(e.target.checked)}
-                />
-                Salvar cartão para próximas compras
-              </label>
 
               <Payment
                 initialization={brickInitialization}
