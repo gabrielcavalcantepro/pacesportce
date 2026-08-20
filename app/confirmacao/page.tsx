@@ -96,6 +96,34 @@ function ConfirmationContent() {
     });
   }, [orderNumber]);
 
+  const isPix = method === 'pix' || method === 'bank_transfer';
+  const isBoleto = method === 'boleto' || method === 'ticket';
+  const isPaid = order
+    ? ['approved', 'processed', 'accredited'].includes(order.payment_status ?? '')
+    : false;
+
+  // PIX e boleto confirmam de forma assíncrona (via webhook), então a página fica
+  // consultando o pedido periodicamente até o pagamento aparecer confirmado —
+  // sem isso, a tela ficava presa em "Aguardando pagamento" mesmo depois de pago.
+  useEffect(() => {
+    if (!orderNumber || (!isPix && !isBoleto) || isPaid) return;
+
+    const interval = setInterval(() => {
+      getOrderByNumber(orderNumber).then((updated) => {
+        if (updated) setOrder(updated);
+      });
+    }, 4000);
+
+    // Para de verificar depois de 5 minutos para não consultar pra sempre numa
+    // aba esquecida aberta.
+    const timeout = setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [orderNumber, isPix, isBoleto, isPaid]);
+
   async function handleCopy(text: string, which: 'pix' | 'boleto') {
     await navigator.clipboard.writeText(text);
     setCopied(which);
@@ -142,8 +170,6 @@ function ConfirmationContent() {
     );
   }
 
-  const isPix = method === 'pix' || method === 'bank_transfer';
-  const isBoleto = method === 'boleto' || method === 'ticket';
   const isCard = method === 'credit_card' || method === 'debitCard';
   const cardApproved = isCard && ['processed', 'accredited', 'approved'].includes(status ?? '');
   const cardNotApproved = isCard && !cardApproved;
@@ -152,7 +178,21 @@ function ConfirmationContent() {
     <>
       <Header />
       <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        {isPix && (
+        {isPix && isPaid && (
+          <>
+            <IconWrap>
+              <CheckCircle size={40} className="text-[#22c55e]" />
+            </IconWrap>
+            <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#f4f4f4] mb-3">
+              Pagamento confirmado!
+            </h1>
+            <span className="inline-block text-xs font-medium text-[#22c55e] bg-[#22c55e]/15 px-3 py-1.5 rounded-full mb-10">
+              Pagamento Aprovado
+            </span>
+          </>
+        )}
+
+        {isPix && !isPaid && (
           <>
             <IconWrap>
               <QrCode size={40} className="text-[#f4f4f4]" />
@@ -253,7 +293,21 @@ function ConfirmationContent() {
           </>
         )}
 
-        {isBoleto && (
+        {isBoleto && isPaid && (
+          <>
+            <IconWrap>
+              <CheckCircle size={40} className="text-[#22c55e]" />
+            </IconWrap>
+            <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#f4f4f4] mb-3">
+              Pagamento confirmado!
+            </h1>
+            <span className="inline-block text-xs font-medium text-[#22c55e] bg-[#22c55e]/15 px-3 py-1.5 rounded-full mb-10">
+              Pagamento Aprovado
+            </span>
+          </>
+        )}
+
+        {isBoleto && !isPaid && (
           <>
             <IconWrap>
               <FileText size={40} className="text-[#f4f4f4]" />
