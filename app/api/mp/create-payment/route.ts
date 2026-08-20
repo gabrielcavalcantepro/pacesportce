@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { sendEmailPedidoConfirmado } from '@/lib/email';
 import type { CartItem, CheckoutCustomer } from '@/lib/types';
 
 type CreatePaymentBody = {
@@ -180,6 +181,20 @@ export async function POST(request: NextRequest) {
         .eq('order_number', orderNumber);
     } catch {
       // O webhook corrige o status de forma assíncrona caso esta atualização otimista falhe.
+    }
+
+    // Cartão pode ser aprovado instantaneamente (sem esperar o webhook) — dispara a
+    // confirmação já aqui. PIX/boleto normalmente ficam 'pending' neste ponto e são
+    // confirmados depois pelo webhook, que tem sua própria checagem de duplicidade.
+    if (result.status === 'processed') {
+      await sendEmailPedidoConfirmado({
+        to: customer.email,
+        customerName: customer.name,
+        orderNumber,
+        items,
+        total,
+        paymentMethod: metodo,
+      });
     }
 
     return NextResponse.json({

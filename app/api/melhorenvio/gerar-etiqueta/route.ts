@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { sendEmailPedidoEnviado } from '@/lib/email';
 import type { Order } from '@/lib/types';
 
 const BASE_URL = 'https://melhorenvio.com.br/api/v2';
@@ -209,12 +210,33 @@ export async function POST(request: NextRequest) {
 
     const labelUrl = printData.url;
 
+    // A resposta do /me/shipment/generate vem como array (um item por pedido
+    // enviado); o código de rastreio fica no campo "tracking" de cada item.
+    const generatedShipment = Array.isArray(generateData) ? generateData[0] : generateData;
+    const trackingCode: string | null = generatedShipment?.tracking ?? null;
+    const carrier = 'Correios';
+
     await supabaseAdmin
       .from('orders')
-      .update({ label_url: labelUrl, status: 'preparing' })
+      .update({
+        label_url: labelUrl,
+        status: 'preparing',
+        tracking_code: trackingCode,
+        shipping_carrier: carrier,
+      })
       .eq('id', orderId);
 
-    return NextResponse.json({ success: true, label_url: labelUrl });
+    if (order.customer_email && trackingCode) {
+      await sendEmailPedidoEnviado({
+        to: order.customer_email,
+        customerName: order.customer_name,
+        orderNumber: order.order_number,
+        trackingCode,
+        carrier: order.shipping_carrier ?? carrier,
+      });
+    }
+
+    return NextResponse.json({ success: true, label_url: labelUrl, tracking_code: trackingCode });
   } catch (error) {
     console.error('MELHORENVIO ETIQUETA ERRO GERAL:', error);
     return NextResponse.json(

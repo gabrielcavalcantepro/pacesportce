@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { requireUser } from '@/lib/supabase/requireUser';
+import { sendEmailPedidoCancelado } from '@/lib/email';
 import type { ActionResult, CartItem, CheckoutCustomer, Order, Shipping } from '@/lib/types';
 
 export type OrderFilters = {
@@ -125,6 +126,23 @@ export async function createOrder(
   }
 }
 
+async function notifyOrderCancelled(order: Order): Promise<void> {
+  if (!order.customer_email) return;
+
+  const { data: whatsappSetting } = await supabaseAdmin
+    .from('store_settings')
+    .select('value')
+    .eq('key', 'whatsapp')
+    .maybeSingle();
+
+  await sendEmailPedidoCancelado({
+    to: order.customer_email,
+    customerName: order.customer_name,
+    orderNumber: order.order_number,
+    whatsapp: whatsappSetting?.value ?? '5585999999999',
+  });
+}
+
 export type UpdateOrderInput = {
   status?: Order['status'];
   tracking_code?: string | null;
@@ -140,6 +158,19 @@ export async function updateOrder(
   try {
     await requireUser();
 
+    // updateOrder() sempre envia 'status' (mesmo quando não mudou, ao salvar outros
+    // campos do pedido), então buscamos o status anterior para só notificar o
+    // cliente na transição real para 'cancelled', não em toda edição do pedido.
+    let previousStatus: Order['status'] | null = null;
+    if (data.status === 'cancelled') {
+      const { data: existing } = await supabaseAdmin
+        .from('orders')
+        .select('status')
+        .eq('id', id)
+        .maybeSingle();
+      previousStatus = existing?.status ?? null;
+    }
+
     const { data: row, error } = await supabaseAdmin
       .from('orders')
       .update(data)
@@ -148,6 +179,10 @@ export async function updateOrder(
       .single();
 
     if (error) return { success: false, error: error.message };
+
+    if (data.status === 'cancelled' && previousStatus !== 'cancelled') {
+      await notifyOrderCancelled(row as Order);
+    }
 
     revalidatePath('/admin/pedidos');
     return { success: true, data: row as Order };
@@ -163,6 +198,16 @@ export async function updateOrderStatus(
   try {
     await requireUser();
 
+    let previousStatus: Order['status'] | null = null;
+    if (status === 'cancelled') {
+      const { data: existing } = await supabaseAdmin
+        .from('orders')
+        .select('status')
+        .eq('id', id)
+        .maybeSingle();
+      previousStatus = existing?.status ?? null;
+    }
+
     const { data: row, error } = await supabaseAdmin
       .from('orders')
       .update({ status })
@@ -171,6 +216,10 @@ export async function updateOrderStatus(
       .single();
 
     if (error) return { success: false, error: error.message };
+
+    if (status === 'cancelled' && previousStatus !== 'cancelled') {
+      await notifyOrderCancelled(row as Order);
+    }
 
     revalidatePath('/admin/pedidos');
     return { success: true, data: row as Order };

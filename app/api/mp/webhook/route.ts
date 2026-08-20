@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { MP_ORDER_STATUS_MAP } from '@/lib/mercadopago';
+import { sendEmailPedidoConfirmado } from '@/lib/email';
+import type { Order } from '@/lib/types';
 
 function validateWebhookSignature(
   xSignature: string,
@@ -68,6 +70,15 @@ export async function POST(request: NextRequest) {
       ? MP_ORDER_STATUS_MAP[order.status] ?? { status: 'pending', payment_status: order.status }
       : { status: 'pending', payment_status: 'pending' };
 
+    // Buscar o pedido antes de atualizar: precisamos do status anterior para só
+    // disparar o e-mail de confirmação na transição para 'confirmed' (o MP pode
+    // reenviar o mesmo webhook várias vezes) e dos dados do pedido para o e-mail.
+    const { data: existingOrder } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .eq('order_number', order.external_reference)
+      .maybeSingle();
+
     // Atualizar pedido no Supabase.
     const { error } = await supabaseAdmin
       .from('orders')
@@ -83,6 +94,24 @@ export async function POST(request: NextRequest) {
       console.error('WEBHOOK: erro ao atualizar pedido', error);
     } else {
       console.log(`WEBHOOK: pedido ${order.external_reference} atualizado → ${mapped.status}`);
+    }
+
+    const previousOrder = existingOrder as Order | null;
+    if (
+      !error &&
+      mapped.status === 'confirmed' &&
+      previousOrder &&
+      previousOrder.status !== 'confirmed' &&
+      previousOrder.customer_email
+    ) {
+      await sendEmailPedidoConfirmado({
+        to: previousOrder.customer_email,
+        customerName: previousOrder.customer_name,
+        orderNumber: previousOrder.order_number,
+        items: previousOrder.items,
+        total: previousOrder.total,
+        paymentMethod: previousOrder.payment_method ?? 'outro',
+      });
     }
 
     // Sempre retornar 200 para o MP não retentar.
