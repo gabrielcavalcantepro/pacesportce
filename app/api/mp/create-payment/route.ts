@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { sendEmailPedidoConfirmado } from '@/lib/email';
+import { decrementStock } from '@/lib/queries/products';
 import type { CartItem, CheckoutCustomer } from '@/lib/types';
 
 type CreatePaymentBody = {
@@ -187,6 +188,7 @@ export async function POST(request: NextRequest) {
     // confirmação já aqui. PIX/boleto normalmente ficam 'pending' neste ponto e são
     // confirmados depois pelo webhook, que tem sua própria checagem de duplicidade.
     if (result.status === 'processed') {
+      await decrementStock(items);
       await sendEmailPedidoConfirmado({
         to: customer.email,
         customerName: customer.name,

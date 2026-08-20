@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { MP_ORDER_STATUS_MAP } from '@/lib/mercadopago';
 import { sendEmailPedidoConfirmado } from '@/lib/email';
+import { decrementStock } from '@/lib/queries/products';
 import type { Order } from '@/lib/types';
 
 function validateWebhookSignature(
@@ -100,21 +101,22 @@ export async function POST(request: NextRequest) {
     }
 
     const previousOrder = existingOrder as Order | null;
-    if (
-      !error &&
-      mapped.status === 'confirmed' &&
-      previousOrder &&
-      previousOrder.status !== 'confirmed' &&
-      previousOrder.customer_email
-    ) {
-      await sendEmailPedidoConfirmado({
-        to: previousOrder.customer_email,
-        customerName: previousOrder.customer_name,
-        orderNumber: previousOrder.order_number,
-        items: previousOrder.items,
-        total: previousOrder.total,
-        paymentMethod: previousOrder.payment_method ?? 'outro',
-      });
+    const justConfirmed =
+      !error && mapped.status === 'confirmed' && previousOrder && previousOrder.status !== 'confirmed';
+
+    if (justConfirmed) {
+      await decrementStock(previousOrder.items);
+
+      if (previousOrder.customer_email) {
+        await sendEmailPedidoConfirmado({
+          to: previousOrder.customer_email,
+          customerName: previousOrder.customer_name,
+          orderNumber: previousOrder.order_number,
+          items: previousOrder.items,
+          total: previousOrder.total,
+          paymentMethod: previousOrder.payment_method ?? 'outro',
+        });
+      }
     }
 
     // Sempre retornar 200 para o MP não retentar.

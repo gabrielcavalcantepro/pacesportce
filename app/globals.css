@@ -13,6 +13,24 @@ html {
   scroll-behavior: smooth;
 }
 
+/* O preflight do Tailwind reseta cursor:default em <button>, então todo
+   elemento clicável precisa da mãozinha de volta explicitamente aqui. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a,
+label,
+select,
+summary,
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }

@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { requireUser } from '@/lib/supabase/requireUser';
 import { generateSlug } from '@/lib/utils/slug';
 import { normalizeVariants } from '@/lib/utils/variants';
-import type { ActionResult, Product } from '@/lib/types';
+import type { ActionResult, CartItem, Product } from '@/lib/types';
 
 export type ProductInput = Omit<Product, 'id' | 'created_at' | 'updated_at' | 'category'>;
 
@@ -179,5 +179,26 @@ export async function duplicateProduct(id: string): Promise<ActionResult<Product
     return { success: true, data: { ...product, variants: normalizeVariants(product.variants) } };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : 'Erro desconhecido.' };
+  }
+}
+
+// Chamada quando um pedido é confirmado (webhook do PIX/boleto ou aprovação
+// instantânea de cartão) para dar baixa no estoque dos produtos comprados.
+// Sem lock/transação — aceitável para o volume desta loja; em caso de dois
+// pagamentos simultâneos pelo último item, o estoque não passa de 0.
+export async function decrementStock(items: CartItem[]): Promise<void> {
+  for (const item of items) {
+    const { data: product } = await supabaseAdmin
+      .from('products')
+      .select('stock')
+      .eq('id', item.productId)
+      .maybeSingle();
+
+    if (!product) continue;
+
+    await supabaseAdmin
+      .from('products')
+      .update({ stock: Math.max(product.stock - item.quantity, 0) })
+      .eq('id', item.productId);
   }
 }
