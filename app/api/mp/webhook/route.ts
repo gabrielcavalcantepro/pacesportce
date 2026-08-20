@@ -16,7 +16,10 @@ function validateWebhookSignature(
   const v1 = parts['v1'];
   if (!ts || !v1) return false;
 
-  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+  // A documentação da MP exige que o data.id seja convertido para minúsculo no
+  // manifest quando for alfanumérico (caso dos IDs da Orders API, ex: ORD.../PAY...) —
+  // sem isso, a assinatura calculada nunca bate com a que a MP enviou.
+  const manifest = `id:${dataId.toLowerCase()};request-id:${xRequestId};ts:${ts};`;
   const hash = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
 
   // Comparação em tempo constante para evitar timing attack sobre a assinatura.
