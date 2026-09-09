@@ -40,6 +40,33 @@ function mpHeaders(): HeadersInit {
   };
 }
 
+// Mensagens amigáveis para os motivos de recusa mais comuns da MP. Cobre tanto
+// o vocabulário da Orders API (ex: "insufficient_amount") quanto o da antiga
+// Payments API (prefixo "cc_rejected_"), já que não está documentado qual a
+// Orders API sempre usa.
+const MOTIVOS_RECUSA: Record<string, string> = {
+  insufficient_amount: 'Valor abaixo do mínimo aceito para pagamento com cartão.',
+  cc_rejected_insufficient_amount: 'Saldo insuficiente no cartão.',
+  cc_rejected_bad_filled_card_number: 'Número do cartão incorreto.',
+  cc_rejected_bad_filled_date: 'Data de validade do cartão incorreta.',
+  cc_rejected_bad_filled_security_code: 'Código de segurança (CVV) incorreto.',
+  cc_rejected_bad_filled_other: 'Dados do cartão incorretos.',
+  cc_rejected_blacklist: 'Cartão recusado pelo banco emissor.',
+  cc_rejected_call_for_authorize:
+    'É necessário autorizar o pagamento diretamente com o banco emissor.',
+  cc_rejected_card_disabled: 'Cartão desabilitado. Entre em contato com o banco emissor.',
+  cc_rejected_duplicated_payment: 'Pagamento duplicado. Aguarde ou tente outro cartão.',
+  cc_rejected_high_risk: 'Pagamento recusado por segurança.',
+  cc_rejected_invalid_installments: 'Número de parcelas inválido para este cartão.',
+  cc_rejected_max_attempts: 'Limite de tentativas atingido. Tente outro cartão.',
+  cc_rejected_other_reason: 'Pagamento recusado pelo banco emissor.',
+};
+
+function mapMotivoRecusa(statusDetail: string | undefined): string {
+  if (statusDetail && MOTIVOS_RECUSA[statusDetail]) return MOTIVOS_RECUSA[statusDetail];
+  return 'Pagamento recusado. Verifique os dados do cartão ou tente outro meio de pagamento.';
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('=== CREATE-PAYMENT INICIADO ===');
@@ -164,8 +191,44 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       console.error('ERRO MP Orders API:', JSON.stringify(result, null, 2));
+
+      // A Orders API pode responder com HTTP de erro mesmo tendo criado a
+      // order de verdade — é o caso normal de cartão recusado (saldo, CVV
+      // errado, valor abaixo do mínimo, etc.). Isso não é uma falha nossa:
+      // registra o status real do pagamento e devolve uma mensagem de
+      // recusa amigável, em vez de um 500 genérico que parece o site quebrado.
+      const orderData = result.data as
+        | { status?: string; transactions?: { payments?: { id: unknown; status?: string; status_detail?: string }[] } }
+        | undefined;
+      const failedPayment = orderData?.transactions?.payments?.[0];
+
+      if (orderData && failedPayment) {
+        try {
+          await supabaseAdmin
+            .from('orders')
+            .update({
+              payment_id: failedPayment.id != null ? String(failedPayment.id) : undefined,
+              payment_method: metodo,
+              payment_status: failedPayment.status ?? 'rejected',
+            })
+            .eq('order_number', orderNumber);
+        } catch {
+          // best-effort; o webhook também atualiza o pedido de forma assíncrona
+        }
+
+        return NextResponse.json(
+          {
+            error: mapMotivoRecusa(failedPayment.status_detail),
+            status: orderData.status,
+            payment_status: failedPayment.status,
+            payment_status_detail: failedPayment.status_detail,
+          },
+          { status: 402 }
+        );
+      }
+
       return NextResponse.json(
-        { error: result.message || 'Erro ao processar pagamento' },
+        { error: result.message || 'Erro ao processar pagamento.' },
         { status: 500 }
       );
     }
