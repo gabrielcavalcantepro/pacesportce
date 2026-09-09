@@ -82,7 +82,9 @@ export async function POST(request: NextRequest) {
       category_id: 'others',
       quantity: item.quantity,
       unit_price: String((item.price / 100).toFixed(2)),
-      external_code: item.slug,
+      // A Orders API rejeita o pedido inteiro se external_code passar de 30
+      // caracteres — slugs de produto reais já estouraram isso em produção.
+      external_code: item.slug.slice(0, 30),
     }));
 
     const commonFields = {
