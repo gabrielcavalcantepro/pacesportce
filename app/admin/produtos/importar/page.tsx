@@ -414,7 +414,7 @@ export default function ImportarProdutosPage() {
       prev.map((p, i) => {
         if (i !== index) return p;
         const next = { ...p, ...patch };
-        next.erros = validarProduto(next, categorias);
+        next.erros = validarProduto(next);
         return next;
       })
     );

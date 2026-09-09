@@ -65,11 +65,11 @@ export function parseEspecificacoes(valor: unknown): { label: string; value: str
     .filter((s) => s.label && s.value);
 }
 
-// Variantes: "Tamanho:P,M,G|Cor:Preto,Branco" → [{name, options}]
+// Variantes: "Tamanho:P,M,G/Cor:Preto,Branco" → [{name, options}]
 export function parseVariantes(valor: unknown): { name: string; options: string[] }[] {
   if (!valor) return [];
   return String(valor)
-    .split('|')
+    .split('/')
     .map((grupo) => {
       const [name, opts] = grupo.split(':');
       return {
@@ -129,9 +129,17 @@ export function gerarSlugUnico(nome: string, usados: Set<string>): string {
   return slug;
 }
 
+export const CATEGORIAS_VALIDAS = [
+  'acessorios-bike',
+  'acessorios-corrida',
+  'acessorios-de-natacao',
+  'suplementos',
+  'pecas',
+  'oportunidades-em-semi-novas',
+];
+
 export function validarProduto(
-  produto: Pick<ProdutoImportado, 'nome' | 'categoria' | 'preco'>,
-  categorias: Category[]
+  produto: Pick<ProdutoImportado, 'nome' | 'categoria' | 'preco'>
 ): string[] {
   const erros: string[] = [];
 
@@ -139,7 +147,7 @@ export function validarProduto(
     erros.push('Nome obrigatório');
   }
 
-  if (!categorias.some((c) => c.slug === produto.categoria)) {
+  if (!CATEGORIAS_VALIDAS.includes(produto.categoria)) {
     erros.push('Categoria inválida');
   }
 
