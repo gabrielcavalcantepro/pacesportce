@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Check, Minus } from 'lucide-react';
+import { Plus, Check, Minus, FileSpreadsheet } from 'lucide-react';
 import { getProducts } from '@/lib/queries/products';
 import { getCategories } from '@/lib/queries/categories';
 import { formatPrice } from '@/lib/utils/price';
@@ -41,13 +41,22 @@ export default async function AdminProdutosPage({
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-[#f4f4f4]">Produtos</h1>
-        <Link
-          href="/admin/produtos/novo"
-          className="flex items-center gap-2 bg-[#f4f4f4] text-[#151515] font-medium rounded-lg px-4 py-2.5 text-sm"
-        >
-          <Plus size={16} />
-          Novo Produto
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/produtos/importar"
+            className="flex items-center gap-2 px-4 py-2 border border-[#2a2a2a] text-[#f4f4f4] rounded-lg hover:bg-[#2a2a2a] transition-colors text-sm"
+          >
+            <FileSpreadsheet size={16} />
+            Importar via Planilha
+          </Link>
+          <Link
+            href="/admin/produtos/novo"
+            className="flex items-center gap-2 bg-[#f4f4f4] text-[#151515] font-medium rounded-lg px-4 py-2.5 text-sm"
+          >
+            <Plus size={16} />
+            Novo Produto
+          </Link>
+        </div>
       </div>
 
       <ProdutosFilters
