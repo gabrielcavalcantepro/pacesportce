@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { CartItem, CartContextType, Shipping } from '@/lib/types';
+import type { CartItem, CartContextType, CashDiscountPaymentMethod, Shipping } from '@/lib/types';
 
 const CartContext = createContext<CartContextType | null>(null);
 
@@ -79,6 +79,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setShippingState(next);
   }
 
+  // Desconto à vista: aplica o cash_discount de cada item quando o pagamento é
+  // PIX ou cartão em 1x. O frete não entra no desconto, só o subtotal dos itens.
+  function calculateTotalWithDiscount(paymentMethod: CashDiscountPaymentMethod): number {
+    const aplicaDesconto = paymentMethod === 'pix' || paymentMethod === 'credit_1x';
+    const itemsTotal = items.reduce((sum, i) => {
+      const desconto = aplicaDesconto ? i.cash_discount ?? 0 : 0;
+      const precoComDesconto = Math.round(i.price * (1 - desconto / 100));
+      return sum + precoComDesconto * i.quantity;
+    }, 0);
+    return itemsTotal + (shipping?.price ?? 0);
+  }
+
   const total =
     items.reduce((sum, i) => sum + i.price * i.quantity, 0) + (shipping?.price ?? 0);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -96,6 +108,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         shipping,
         setShipping,
         hydrated,
+        calculateTotalWithDiscount,
       }}
     >
       {children}

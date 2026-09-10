@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Info } from 'lucide-react';
 import { generateSlug } from '@/lib/utils/slug';
 import ImageUploader from '@/components/admin/ImageUploader';
 import TagVariantInput from '@/components/admin/TagVariantInput';
 import PriceInput from '@/components/admin/PriceInput';
 import CustomSelect from '@/components/admin/CustomSelect';
+import { formatPrice } from '@/lib/utils/price';
 import type { Category, Product, ProductVariants, VariantDimension } from '@/lib/types';
 import type { ProductInput } from '@/lib/queries/products';
 
@@ -29,6 +30,7 @@ const productSchema = z.object({
   whatsappOnly: z.boolean(),
   price: z.number().min(1, 'Preço é obrigatório'),
   compareAtPrice: z.number(),
+  cashDiscount: z.string().optional(),
   stock: z.string().min(1, 'Estoque é obrigatório'),
   description: z.string().optional(),
   fullDescription: z.string().optional(),
@@ -79,6 +81,7 @@ function toFormValues(product?: Partial<Product>): FormValues {
     whatsappOnly: product?.whatsapp_only ?? false,
     price: product?.price ?? 0,
     compareAtPrice: product?.compare_at_price ?? 0,
+    cashDiscount: product?.cash_discount ? String(product.cash_discount) : '',
     stock: product?.stock != null ? String(product.stock) : '0',
     description: product?.description ?? '',
     fullDescription: product?.full_description ?? '',
@@ -118,11 +121,20 @@ export default function ProductForm({
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: toFormValues(defaultValues),
   });
+
+  const watchedPrice = watch('price');
+  const watchedCashDiscount = watch('cashDiscount');
+  const cashDiscountNum = Math.min(100, Math.max(0, parseInt(watchedCashDiscount || '0', 10) || 0));
+  const precoAVistaPreview =
+    cashDiscountNum > 0 && watchedPrice > 0
+      ? Math.round(watchedPrice * (1 - cashDiscountNum / 100))
+      : null;
 
   const specFields = useFieldArray({ control, name: 'specifications' });
 
@@ -165,6 +177,7 @@ export default function ProductForm({
       sku: values.sku?.trim() || null,
       price: values.price,
       compare_at_price: values.compareAtPrice > 0 ? values.compareAtPrice : null,
+      cash_discount: Math.min(100, Math.max(0, parseInt(values.cashDiscount || '0', 10) || 0)),
       images,
       category_id: values.category_id || null,
       tags: defaultValues?.tags ?? [],
@@ -300,7 +313,7 @@ export default function ProductForm({
       {/* Preço e estoque */}
       <section className={sectionClass}>
         <h2 className={sectionTitleClass}>Preço e estoque</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label htmlFor="price" className={labelClass}>
               Preço (R$)
@@ -336,6 +349,38 @@ export default function ProductForm({
                 />
               )}
             />
+          </div>
+
+          <div>
+            <label htmlFor="cashDiscount" className={`${labelClass} flex items-center gap-1.5`}>
+              Desconto à Vista (%)
+              <span
+                title="Desconto aplicado automaticamente ao pagar com PIX ou cartão em 1x"
+                className="text-[#888888] cursor-help"
+              >
+                <Info size={13} />
+              </span>
+            </label>
+            <div className="relative">
+              <input
+                id="cashDiscount"
+                type="number"
+                step="1"
+                min={0}
+                max={100}
+                placeholder="Ex: 20 para 20% de desconto"
+                {...register('cashDiscount')}
+                className={`${inputClass} pr-8`}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#888888] pointer-events-none">
+                %
+              </span>
+            </div>
+            {precoAVistaPreview !== null && (
+              <p className="text-sm mt-1.5 text-[#4ade80]">
+                Preço à vista: {formatPrice(precoAVistaPreview)}
+              </p>
+            )}
           </div>
 
           <div>

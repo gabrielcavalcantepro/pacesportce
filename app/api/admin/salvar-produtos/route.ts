@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
               full_description: produto.descricao_full,
               price: produto.preco,
               compare_at_price: produto.preco_promo,
+              cash_discount: produto.desconto_vista,
               stock: produto.estoque,
               featured: produto.destaque,
               free_shipping: produto.frete_gratis,

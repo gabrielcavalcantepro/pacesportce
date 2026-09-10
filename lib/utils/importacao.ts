@@ -9,6 +9,7 @@ export interface ProdutoImportado {
   status: 'active' | 'inactive' | 'draft';
   preco: number | null; // em centavos
   preco_promo: number | null; // em centavos
+  desconto_vista: number; // percentual (0-100), 0 = sem desconto
   estoque: number;
   destaque: boolean;
   frete_gratis: boolean;
@@ -51,6 +52,14 @@ export function parseNumber(valor: unknown): number | null {
 export function parsePreco(valor: unknown): number | null {
   const num = parseNumber(valor);
   return num !== null ? Math.round(num * 100) : null;
+}
+
+// Desconto à vista: aceita "20", "20%" etc. Fora de 0-100 ou inválido vira 0.
+export function parseCashDiscount(valor: unknown): number {
+  if (!valor) return 0;
+  const num = parseInt(String(valor).replace('%', '').trim(), 10);
+  if (isNaN(num) || num < 0 || num > 100) return 0;
+  return num;
 }
 
 // Especificações: "Marca:Trek,Material:Alumínio" → [{label, value}]

@@ -15,6 +15,7 @@ export default function CartSummary() {
   const allFreeShipping = items.length > 0 && items.every((i) => i.free_shipping);
   const freteGratisFortaleza = !allFreeShipping && shipping?.company === 'Grátis';
   const freteGratis = allFreeShipping || freteGratisFortaleza;
+  const maiorDescontoAVista = items.reduce((max, i) => Math.max(max, i.cash_discount ?? 0), 0);
 
   function handleFinalize() {
     if (!freteGratis && !shipping) {
@@ -58,6 +59,12 @@ export default function CartSummary() {
         <span className="text-[#f4f4f4]">Total</span>
         <span className="text-[#f4f4f4] text-lg">{formatPrice(total)}</span>
       </div>
+
+      {maiorDescontoAVista > 0 && (
+        <p className="text-sm text-green-400">
+          💡 Pague com PIX e economize até {maiorDescontoAVista}%
+        </p>
+      )}
 
       {freteError && (
         <p className="text-sm text-[#ef4444]">

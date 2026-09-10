@@ -70,6 +70,7 @@ export default function AddToCart({
       width: product.width,
       height: product.height,
       free_shipping: product.free_shipping,
+      cash_discount: product.cash_discount,
     });
 
     setAdded(true);

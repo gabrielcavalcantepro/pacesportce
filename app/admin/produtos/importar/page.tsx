@@ -236,6 +236,22 @@ function ProdutoCard({
               </div>
 
               <div>
+                <label className={labelClass}>Desconto à Vista (%)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={produto.desconto_vista}
+                  onChange={(e) =>
+                    onUpdate({
+                      desconto_vista: Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0)),
+                    })
+                  }
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
                 <label className={labelClass}>Estoque</label>
                 <input
                   type="number"
@@ -518,7 +534,7 @@ export default function ImportarProdutosPage() {
         </div>
 
         <a
-          href="/downloads/modelo_importacao_produtos.xlsx"
+          href="/downloads/modelo_pacesportce_desconto.xlsx"
           className="inline-flex items-center gap-2 text-sm text-[#888888] hover:text-[#f4f4f4] transition-colors mt-4"
         >
           <Download size={14} />

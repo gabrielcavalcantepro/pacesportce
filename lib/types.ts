@@ -47,6 +47,7 @@ export interface Product {
   specifications: { label: string; value: string }[];
   variants: ProductVariants;
   whatsapp_only: boolean;
+  cash_discount: number; // percentual (0-100), 0 = sem desconto à vista
   created_at: string;
   updated_at: string;
 }
@@ -125,6 +126,7 @@ export interface CartItem {
   width?: number | null;
   height?: number | null;
   free_shipping?: boolean;
+  cash_discount?: number; // percentual (0-100) de desconto à vista (PIX ou cartão 1x)
 }
 
 export interface Shipping {
@@ -141,6 +143,8 @@ export type ActionResult<T = unknown> = {
   data?: T;
 };
 
+export type CashDiscountPaymentMethod = 'pix' | 'credit_1x' | 'other';
+
 export interface CartContextType {
   items: CartItem[];
   addItem: (item: CartItem) => void;
@@ -152,4 +156,5 @@ export interface CartContextType {
   shipping: Shipping | null;
   setShipping: (shipping: Shipping | null) => void;
   hydrated: boolean;
+  calculateTotalWithDiscount: (paymentMethod: CashDiscountPaymentMethod) => number;
 }

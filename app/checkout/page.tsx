@@ -14,7 +14,7 @@ import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/price';
 import { prazoTexto } from '@/lib/utils/frete';
 import { createOrder } from '@/lib/queries/orders';
-import type { CheckoutCustomer } from '@/lib/types';
+import type { CashDiscountPaymentMethod, CheckoutCustomer } from '@/lib/types';
 
 initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY!, { locale: 'pt-BR' });
 
@@ -85,13 +85,24 @@ function mapBrickPaymentType(paymentType: string): string {
   }
 }
 
+// O Brick não expõe um callback de mudança de método de pagamento — só dá pra
+// saber o que o cliente escolheu quando ele já enviou o formulário (onSubmit).
+function detectCashDiscountMethod(
+  paymentType: string,
+  installments: number | undefined
+): CashDiscountPaymentMethod {
+  if (paymentType === 'bank_transfer') return 'pix';
+  if (paymentType === 'creditCard' && (installments ?? 1) === 1) return 'credit_1x';
+  return 'other';
+}
+
 const inputClass =
   'w-full bg-[#1e1e1e] border border-[#2a2a2a] text-[#f4f4f4] rounded-lg px-4 py-3 outline-none focus:border-[#f4f4f4] transition-colors text-sm';
 const labelClass = 'block text-sm text-[#888888] mb-1.5';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, shipping, total, clearCart, hydrated } = useCart();
+  const { items, shipping, total, clearCart, hydrated, calculateTotalWithDiscount } = useCart();
 
   const [cepLoading, setCepLoading] = useState(false);
   const [cepError, setCepError] = useState<string | null>(null);
@@ -99,6 +110,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+  const [totalComDesconto, setTotalComDesconto] = useState<number | null>(null);
 
   const {
     register,
@@ -266,6 +278,12 @@ export default function CheckoutPage() {
     setFormError(null);
     setSubmitting(true);
 
+    // Prévia do desconto à vista para o resumo — não altera o que é enviado ao
+    // servidor, que recalcula o total com autoridade a partir dos itens.
+    const cashMethod = detectCashDiscountMethod(brickData.paymentType, brickData.formData.installments);
+    const previewTotal = calculateTotalWithDiscount(cashMethod);
+    setTotalComDesconto(previewTotal < total ? previewTotal : null);
+
     const customer = getValues() as CheckoutCustomer;
 
     const orderResult = await createOrder({
@@ -294,6 +312,7 @@ export default function CheckoutPage() {
           items,
           total,
           paymentType: brickData.paymentType,
+          paymentInstallments: brickData.formData.installments,
           formData: {
             ...brickData.formData,
             paymentTypeId: additionalData?.paymentTypeId,
@@ -338,7 +357,7 @@ export default function CheckoutPage() {
       setSubmitting(false);
       setFormError('Erro ao processar pagamento. Tente novamente.');
     }
-  }, [trigger, getValues, items, shipping, total, clearCart, router, customerId]);
+  }, [trigger, getValues, items, shipping, total, clearCart, router, customerId, calculateTotalWithDiscount]);
 
   const handleBrickError = useCallback((error: unknown) => {
     console.error('MP Brick error:', error);
@@ -591,9 +610,20 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {totalComDesconto !== null && (
+                <div className="flex justify-between gap-4 text-sm">
+                  <span className="text-green-400">Desconto à vista</span>
+                  <span className="text-green-400 shrink-0">
+                    -{formatPrice(total - totalComDesconto)}
+                  </span>
+                </div>
+              )}
+
               <div className="pt-3 border-t border-[#2a2a2a] flex justify-between items-baseline">
                 <span className="text-[#f4f4f4] font-semibold">Total</span>
-                <span className="text-2xl font-bold text-[#f4f4f4]">{formatPrice(total)}</span>
+                <span className="text-2xl font-bold text-[#f4f4f4]">
+                  {formatPrice(totalComDesconto ?? total)}
+                </span>
               </div>
             </div>
           </div>

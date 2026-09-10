@@ -11,6 +11,7 @@ type CreatePaymentBody = {
   items: CartItem[];
   total: number;
   paymentType: string;
+  paymentInstallments?: number;
   formData: {
     payment_method_id?: string;
     token?: string;
@@ -30,6 +31,22 @@ function detectarMetodo(paymentType: string, formData: CreatePaymentBody['formDa
 
 function formatAmount(cents: number): string {
   return (cents / 100).toFixed(2);
+}
+
+// Desconto à vista: aplica o cash_discount de cada item quando o pagamento é
+// PIX ou cartão em 1x. O frete (diferença entre o total enviado e a soma dos
+// itens ao preço cheio) não recebe desconto.
+function calcularTotalComDesconto(items: CartItem[], totalOriginal: number): number {
+  const subtotalOriginal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const shippingCost = totalOriginal - subtotalOriginal;
+
+  const subtotalComDesconto = items.reduce((sum, i) => {
+    const desconto = i.cash_discount ?? 0;
+    const precoComDesconto = Math.round(i.price * (1 - desconto / 100));
+    return sum + precoComDesconto * i.quantity;
+  }, 0);
+
+  return subtotalComDesconto + shippingCost;
 }
 
 function mpHeaders(): HeadersInit {
@@ -75,10 +92,13 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as CreatePaymentBody;
     console.log('BODY RECEBIDO:', JSON.stringify(body, null, 2));
 
-    const { orderNumber, customer, items, total, paymentType, formData } = body;
+    const { orderNumber, customer, items, total, paymentType, paymentInstallments, formData } = body;
 
     const metodo = detectarMetodo(paymentType, formData);
-    const amount = formatAmount(total);
+    const installments = formData.installments ?? paymentInstallments ?? 1;
+    const descontoAplica = metodo === 'pix' || (metodo === 'credit_card' && installments === 1);
+    const totalFinal = descontoAplica ? calcularTotalComDesconto(items, total) : total;
+    const amount = formatAmount(totalFinal);
     const cpfDigits = customer.cpf.replace(/\D/g, '');
 
     const nameParts = customer.name.trim().split(/\s+/);
@@ -243,6 +263,7 @@ export async function POST(request: NextRequest) {
           payment_method: metodo,
           payment_status: payment?.status ?? 'pending',
           status: result.status === 'processed' ? 'confirmed' : 'pending',
+          total: totalFinal,
         })
         .eq('order_number', orderNumber);
     } catch {
@@ -259,7 +280,7 @@ export async function POST(request: NextRequest) {
         customerName: customer.name,
         orderNumber,
         items,
-        total,
+        total: totalFinal,
         paymentMethod: metodo,
       });
     }
@@ -271,6 +292,8 @@ export async function POST(request: NextRequest) {
       payment_id: payment?.id,
       payment_status: payment?.status,
       payment_status_detail: payment?.status_detail,
+      total: totalFinal,
+      cash_discount_applied: descontoAplica && totalFinal < total,
       // PIX
       pix_qr_code: payment?.payment_method?.qr_code,
       pix_qr_code_base64: payment?.payment_method?.qr_code_base64,
