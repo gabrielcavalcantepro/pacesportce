@@ -14,7 +14,7 @@ import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils/price';
 import { prazoTexto } from '@/lib/utils/frete';
 import { createOrder } from '@/lib/queries/orders';
-import type { CashDiscountPaymentMethod, CheckoutCustomer } from '@/lib/types';
+import type { PixDiscountMethod, CheckoutCustomer } from '@/lib/types';
 
 initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY!, { locale: 'pt-BR' });
 
@@ -87,13 +87,9 @@ function mapBrickPaymentType(paymentType: string): string {
 
 // O Brick não expõe um callback de mudança de método de pagamento — só dá pra
 // saber o que o cliente escolheu quando ele já enviou o formulário (onSubmit).
-function detectCashDiscountMethod(
-  paymentType: string,
-  installments: number | undefined
-): CashDiscountPaymentMethod {
-  if (paymentType === 'bank_transfer') return 'pix';
-  if (paymentType === 'creditCard' && (installments ?? 1) === 1) return 'credit_1x';
-  return 'other';
+// Desconto é exclusivo do PIX — cartão (mesmo em 1x) não entra aqui.
+function detectPixDiscountMethod(paymentType: string): PixDiscountMethod {
+  return paymentType === 'bank_transfer' ? 'pix' : 'other';
 }
 
 const inputClass =
@@ -278,10 +274,10 @@ export default function CheckoutPage() {
     setFormError(null);
     setSubmitting(true);
 
-    // Prévia do desconto à vista para o resumo — não altera o que é enviado ao
+    // Prévia do desconto PIX para o resumo — não altera o que é enviado ao
     // servidor, que recalcula o total com autoridade a partir dos itens.
-    const cashMethod = detectCashDiscountMethod(brickData.paymentType, brickData.formData.installments);
-    const previewTotal = calculateTotalWithDiscount(cashMethod);
+    const pixMethod = detectPixDiscountMethod(brickData.paymentType);
+    const previewTotal = calculateTotalWithDiscount(pixMethod);
     setTotalComDesconto(previewTotal < total ? previewTotal : null);
 
     const customer = getValues() as CheckoutCustomer;
@@ -312,7 +308,6 @@ export default function CheckoutPage() {
           items,
           total,
           paymentType: brickData.paymentType,
-          paymentInstallments: brickData.formData.installments,
           formData: {
             ...brickData.formData,
             paymentTypeId: additionalData?.paymentTypeId,
@@ -612,7 +607,7 @@ export default function CheckoutPage() {
 
               {totalComDesconto !== null && (
                 <div className="flex justify-between gap-4 text-sm">
-                  <span className="text-green-400">Desconto à vista</span>
+                  <span className="text-green-400">Desconto PIX</span>
                   <span className="text-green-400 shrink-0">
                     -{formatPrice(total - totalComDesconto)}
                   </span>

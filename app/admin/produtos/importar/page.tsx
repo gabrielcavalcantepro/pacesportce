@@ -236,7 +236,7 @@ function ProdutoCard({
               </div>
 
               <div>
-                <label className={labelClass}>Desconto à Vista (%)</label>
+                <label className={labelClass}>Desconto PIX (%)</label>
                 <input
                   type="number"
                   min={0}
@@ -534,7 +534,7 @@ export default function ImportarProdutosPage() {
         </div>
 
         <a
-          href="/downloads/modelo_pacesportce_desconto.xlsx"
+          href="/downloads/modelo_pacesportce_final.xlsx"
           className="inline-flex items-center gap-2 text-sm text-[#888888] hover:text-[#f4f4f4] transition-colors mt-4"
         >
           <Download size={14} />

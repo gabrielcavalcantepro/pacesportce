@@ -353,9 +353,9 @@ export default function ProductForm({
 
           <div>
             <label htmlFor="cashDiscount" className={`${labelClass} flex items-center gap-1.5`}>
-              Desconto à Vista (%)
+              Desconto PIX (%)
               <span
-                title="Desconto aplicado automaticamente ao pagar com PIX ou cartão em 1x"
+                title="Desconto aplicado automaticamente ao pagar com PIX"
                 className="text-[#888888] cursor-help"
               >
                 <Info size={13} />
@@ -378,7 +378,7 @@ export default function ProductForm({
             </div>
             {precoAVistaPreview !== null && (
               <p className="text-sm mt-1.5 text-[#4ade80]">
-                Preço à vista: {formatPrice(precoAVistaPreview)}
+                Preço no PIX: {formatPrice(precoAVistaPreview)}
               </p>
             )}
           </div>

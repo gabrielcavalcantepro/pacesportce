@@ -54,7 +54,7 @@ export function parsePreco(valor: unknown): number | null {
   return num !== null ? Math.round(num * 100) : null;
 }
 
-// Desconto à vista: aceita "20", "20%" etc. Fora de 0-100 ou inválido vira 0.
+// Desconto PIX: aceita "20", "20%" etc. Fora de 0-100 ou inválido vira 0.
 export function parseCashDiscount(valor: unknown): number {
   if (!valor) return 0;
   const num = parseInt(String(valor).replace('%', '').trim(), 10);
@@ -62,15 +62,20 @@ export function parseCashDiscount(valor: unknown): number {
   return num;
 }
 
-// Especificações: "Marca:Trek,Material:Alumínio" → [{label, value}]
+// Especificações: "Marca:Trek/Material:Alumínio" → [{label, value}]
 export function parseEspecificacoes(valor: unknown): { label: string; value: string }[] {
   if (!valor) return [];
   return String(valor)
-    .split(',')
+    .split('/')
     .map((s) => {
-      const [label, ...rest] = s.split(':');
-      return { label: label?.trim() ?? '', value: rest.join(':').trim() };
+      const colonIndex = s.indexOf(':');
+      if (colonIndex === -1) return null;
+      return {
+        label: s.substring(0, colonIndex).trim(),
+        value: s.substring(colonIndex + 1).trim(),
+      };
     })
+    .filter((s): s is { label: string; value: string } => s !== null)
     .filter((s) => s.label && s.value);
 }
 

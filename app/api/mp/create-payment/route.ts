@@ -11,7 +11,6 @@ type CreatePaymentBody = {
   items: CartItem[];
   total: number;
   paymentType: string;
-  paymentInstallments?: number;
   formData: {
     payment_method_id?: string;
     token?: string;
@@ -33,9 +32,9 @@ function formatAmount(cents: number): string {
   return (cents / 100).toFixed(2);
 }
 
-// Desconto à vista: aplica o cash_discount de cada item quando o pagamento é
-// PIX ou cartão em 1x. O frete (diferença entre o total enviado e a soma dos
-// itens ao preço cheio) não recebe desconto.
+// Desconto PIX: aplica o cash_discount de cada item apenas quando o pagamento é
+// PIX. O frete (diferença entre o total enviado e a soma dos itens ao preço
+// cheio) não recebe desconto.
 function calcularTotalComDesconto(items: CartItem[], totalOriginal: number): number {
   const subtotalOriginal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const shippingCost = totalOriginal - subtotalOriginal;
@@ -92,11 +91,11 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as CreatePaymentBody;
     console.log('BODY RECEBIDO:', JSON.stringify(body, null, 2));
 
-    const { orderNumber, customer, items, total, paymentType, paymentInstallments, formData } = body;
+    const { orderNumber, customer, items, total, paymentType, formData } = body;
 
     const metodo = detectarMetodo(paymentType, formData);
-    const installments = formData.installments ?? paymentInstallments ?? 1;
-    const descontoAplica = metodo === 'pix' || (metodo === 'credit_card' && installments === 1);
+    // Desconto exclusivo do PIX — cartão (mesmo em 1x) não recebe desconto.
+    const descontoAplica = metodo === 'pix';
     const totalFinal = descontoAplica ? calcularTotalComDesconto(items, total) : total;
     const amount = formatAmount(totalFinal);
     const cpfDigits = customer.cpf.replace(/\D/g, '');
