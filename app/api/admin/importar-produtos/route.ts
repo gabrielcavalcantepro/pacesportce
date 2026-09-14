@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       };
 
       produto.slug = gerarSlugUnico(nome || `produto-${produto.linha}`, slugsUsados);
-      produto.erros = validarProduto(produto);
+      produto.erros = validarProduto(produto, categorias);
 
       produtos.push(produto);
     }

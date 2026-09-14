@@ -143,17 +143,12 @@ export function gerarSlugUnico(nome: string, usados: Set<string>): string {
   return slug;
 }
 
-export const CATEGORIAS_VALIDAS = [
-  'acessorios-bike',
-  'acessorios-corrida',
-  'acessorios-de-natacao',
-  'suplementos',
-  'pecas',
-  'oportunidades-em-semi-novas',
-];
-
+// Valida contra as categorias reais cadastradas no admin (não uma lista fixa) —
+// uma lista fixa fica desatualizada assim que uma categoria nova é criada, o
+// que já causou produtos válidos sendo rejeitados como "Categoria inválida".
 export function validarProduto(
-  produto: Pick<ProdutoImportado, 'nome' | 'categoria' | 'preco'>
+  produto: Pick<ProdutoImportado, 'nome' | 'categoria' | 'preco'>,
+  categorias: Category[]
 ): string[] {
   const erros: string[] = [];
 
@@ -161,7 +156,7 @@ export function validarProduto(
     erros.push('Nome obrigatório');
   }
 
-  if (!CATEGORIAS_VALIDAS.includes(produto.categoria)) {
+  if (!categorias.some((c) => c.slug === produto.categoria)) {
     erros.push('Categoria inválida');
   }
 

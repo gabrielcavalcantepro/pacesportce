@@ -13,6 +13,25 @@ async function getCategoryIdBySlug(slug: string): Promise<string | null> {
   return data?.id ?? null;
 }
 
+// Traduz os erros mais comuns do Postgres/Supabase para algo que um admin da
+// loja consiga entender sem saber o que é uma "unique constraint".
+function traduzirErroSalvamento(mensagem: string): string {
+  if (mensagem.includes('products_sku_key')) {
+    return 'Já existe outro produto com esse SKU. Cada produto precisa de um SKU único — ajuste ou deixe o campo em branco.';
+  }
+  if (mensagem.includes('products_slug_key')) {
+    return 'Já existe outro produto com o mesmo slug (gerado a partir do nome). Ajuste o nome do produto.';
+  }
+  const notNullMatch = mensagem.match(/null value in column "(\w+)"/);
+  if (notNullMatch) {
+    return `Campo obrigatório não preenchido: "${notNullMatch[1]}".`;
+  }
+  if (mensagem.includes('violates foreign key constraint') && mensagem.includes('category_id')) {
+    return 'A categoria informada não foi encontrada no banco de dados.';
+  }
+  return mensagem;
+}
+
 export async function POST(request: NextRequest) {
   try {
     await requireUser();
@@ -75,7 +94,7 @@ export async function POST(request: NextRequest) {
           falhas.push({
             slug: produto.slug,
             nome: produto.nome,
-            erro: error?.message ?? 'Erro desconhecido.',
+            erro: traduzirErroSalvamento(error?.message ?? 'Erro desconhecido.'),
           });
         } else {
           importados++;
@@ -85,7 +104,7 @@ export async function POST(request: NextRequest) {
         falhas.push({
           slug: produto.slug,
           nome: produto.nome,
-          erro: e instanceof Error ? e.message : 'Erro desconhecido.',
+          erro: traduzirErroSalvamento(e instanceof Error ? e.message : 'Erro desconhecido.'),
         });
       }
     }
