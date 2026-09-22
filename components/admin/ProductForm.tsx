@@ -129,11 +129,13 @@ export default function ProductForm({
   });
 
   const watchedPrice = watch('price');
+  const watchedCompareAtPrice = watch('compareAtPrice');
   const watchedCashDiscount = watch('cashDiscount');
   const cashDiscountNum = Math.min(100, Math.max(0, parseInt(watchedCashDiscount || '0', 10) || 0));
+  const watchedActivePrice = watchedCompareAtPrice > 0 ? watchedCompareAtPrice : watchedPrice;
   const precoAVistaPreview =
-    cashDiscountNum > 0 && watchedPrice > 0
-      ? Math.round(watchedPrice * (1 - cashDiscountNum / 100))
+    cashDiscountNum > 0 && watchedActivePrice > 0
+      ? Math.round(watchedActivePrice * (1 - cashDiscountNum / 100))
       : null;
 
   const specFields = useFieldArray({ control, name: 'specifications' });
@@ -334,8 +336,14 @@ export default function ProductForm({
           </div>
 
           <div>
-            <label htmlFor="compareAtPrice" className={labelClass}>
+            <label htmlFor="compareAtPrice" className={`${labelClass} flex items-center gap-1.5`}>
               Preço promocional (R$)
+              <span
+                title="Se preenchido, este é o preço realmente cobrado. O 'Preço (R$)' passa a aparecer riscado como referência."
+                className="text-[#888888] cursor-help"
+              >
+                <Info size={13} />
+              </span>
             </label>
             <Controller
               control={control}

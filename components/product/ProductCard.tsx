@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
-import { formatPrice } from '@/lib/utils/price';
+import { formatPrice, getActivePrice, getOriginalPrice } from '@/lib/utils/price';
 
 const PLACEHOLDER_IMAGE = 'https://placehold.co/600x600/1e1e1e/f4f4f4?text=Sem+Imagem';
 
@@ -10,8 +10,10 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const discount = product.compare_at_price
-    ? Math.round((1 - product.price / product.compare_at_price) * 100)
+  const activePrice = getActivePrice(product);
+  const originalPrice = getOriginalPrice(product);
+  const discount = originalPrice
+    ? Math.round((1 - activePrice / originalPrice) * 100)
     : null;
 
   const image = product.images[0] ?? PLACEHOLDER_IMAGE;
@@ -59,11 +61,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           </h3>
           <div className="flex items-baseline gap-2">
             <span className="text-base font-bold text-[#f4f4f4]">
-              {formatPrice(product.price)}
+              {formatPrice(activePrice)}
             </span>
-            {product.compare_at_price && (
+            {originalPrice && (
               <span className="text-xs text-[#888888] line-through">
-                {formatPrice(product.compare_at_price)}
+                {formatPrice(originalPrice)}
               </span>
             )}
           </div>

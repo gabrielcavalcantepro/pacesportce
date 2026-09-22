@@ -166,7 +166,7 @@ export default function AddToCart({
                   height: product.height,
                   length: product.length,
                   quantity: 1,
-                  insurance_value: product.price / 100,
+                  insurance_value: effectivePrice / 100,
                 },
               ]}
               selectable={false}

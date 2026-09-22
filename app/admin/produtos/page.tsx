@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Plus, Check, Minus, FileSpreadsheet } from 'lucide-react';
 import { getProducts } from '@/lib/queries/products';
 import { getCategories } from '@/lib/queries/categories';
-import { formatPrice } from '@/lib/utils/price';
+import { formatPrice, getActivePrice } from '@/lib/utils/price';
 import ProductRowActions from './ProductRowActions';
 import ProdutosFilters from './ProdutosFilters';
 
@@ -103,7 +103,7 @@ export default async function AdminProdutosPage({
                 </td>
                 <td className="p-4 text-[#888888]">{product.sku ?? '—'}</td>
                 <td className="p-4 text-[#888888]">{product.category?.name ?? '—'}</td>
-                <td className="p-4 text-[#f4f4f4]">{formatPrice(product.price)}</td>
+                <td className="p-4 text-[#f4f4f4]">{formatPrice(getActivePrice(product))}</td>
                 <td className="p-4">
                   <span
                     className={`text-xs font-medium rounded-full px-2.5 py-1 ${STATUS_CLASS[product.status]}`}

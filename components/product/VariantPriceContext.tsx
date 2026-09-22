@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useMemo, useState } from 'react';
+import { getActivePrice } from '@/lib/utils/price';
 import type { Product } from '@/lib/types';
 
 type VariantPriceContextValue = {
@@ -30,7 +31,7 @@ export function VariantPriceProvider({
     const allSelected = dimensions.length > 0 && dimensions.every((d) => selectedOptions[d.name]);
 
     if (!allSelected) {
-      return { effectivePrice: product.price, isOverridden: false };
+      return { effectivePrice: getActivePrice(product), isOverridden: false };
     }
 
     const key = dimensions.map((d) => selectedOptions[d.name]).join('|');
@@ -40,7 +41,7 @@ export function VariantPriceProvider({
       return { effectivePrice: combination.price, isOverridden: true };
     }
 
-    return { effectivePrice: product.price, isOverridden: false };
+    return { effectivePrice: getActivePrice(product), isOverridden: false };
   }, [product, selectedOptions]);
 
   return (
