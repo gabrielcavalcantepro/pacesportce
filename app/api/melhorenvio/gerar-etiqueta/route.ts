@@ -5,13 +5,11 @@ import type { Order } from '@/lib/types';
 
 const BASE_URL = 'https://melhorenvio.com.br/api/v2';
 
-// ATENÇÃO: phone ainda é um placeholder. Endereço, email e document já são os
-// dados reais da PaceSportce. O Melhor Envio usa esses dados como
-// remetente/retorno na etiqueta impressa — substitua phone pelo dado real
-// antes de gerar etiquetas de verdade.
+// Dados reais da PaceSportce, usados pelo Melhor Envio como remetente/retorno
+// na etiqueta impressa.
 const FROM = {
   name: 'PaceSportce',
-  phone: '85999999999',
+  phone: '8586601012',
   email: 'contato@pacesportce.com.br',
   document: (process.env.MELHORENVIO_REMETENTE_DOCUMENT ?? '').replace(/\D/g, ''),
   address: 'Rua Francisco Lima e Silva',
