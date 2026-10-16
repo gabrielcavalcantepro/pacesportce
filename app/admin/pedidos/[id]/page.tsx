@@ -33,6 +33,7 @@ export default function AdminOrderDetailPage() {
   const [shippingCarrier, setShippingCarrier] = useState('');
   const [shippingService, setShippingService] = useState('');
   const [notes, setNotes] = useState('');
+  const [customerCpf, setCustomerCpf] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
     null
@@ -50,6 +51,7 @@ export default function AdminOrderDetailPage() {
         setShippingCarrier(data.shipping_carrier ?? '');
         setShippingService(data.shipping_service ?? '');
         setNotes(data.notes ?? '');
+        setCustomerCpf(data.customer_cpf ?? '');
         setLabelUrl(data.label_url ?? null);
       }
       setLoading(false);
@@ -66,6 +68,7 @@ export default function AdminOrderDetailPage() {
       shipping_carrier: shippingCarrier.trim() || null,
       shipping_service: shippingService.trim() || null,
       notes: notes.trim() || null,
+      customer_cpf: customerCpf.replace(/\D/g, '') || null,
     });
 
     setSaving(false);
@@ -136,6 +139,15 @@ export default function AdminOrderDetailPage() {
             {order.customer_phone && (
               <p className="text-sm text-[#888888]">{order.customer_phone}</p>
             )}
+            <div className="pt-2">
+              <label className="block text-sm text-[#888888] mb-1.5">CPF do cliente</label>
+              <input
+                value={customerCpf}
+                onChange={(e) => setCustomerCpf(e.target.value)}
+                placeholder="Necessário para gerar etiqueta no Melhor Envio"
+                className="w-full bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
+              />
+            </div>
           </section>
 
           <section className="bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl p-6">

@@ -81,6 +81,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Endereço de entrega não disponível.' }, { status: 400 });
     }
 
+    // Guard: CPF/CNPJ do destinatário (o Melhor Envio exige para gerar a etiqueta).
+    const destinatarioDocument = (order.customer_cpf ?? '').replace(/\D/g, '');
+    if (!destinatarioDocument) {
+      return NextResponse.json(
+        {
+          error:
+            'CPF do cliente não cadastrado neste pedido. Preencha o campo "CPF do cliente" nos dados do pedido e tente novamente.',
+        },
+        { status: 400 }
+      );
+    }
+
     let melhorEnvioOrderId = order.melhor_envio_order_id;
 
     // PASSO 2 — adicionar ao carrinho (pula se já tiver um order id salvo)
@@ -93,7 +105,7 @@ export async function POST(request: NextRequest) {
           name: order.customer_name,
           phone: order.customer_phone?.replace(/\D/g, '') ?? '',
           email: order.customer_email ?? '',
-          document: '',
+          document: destinatarioDocument,
           address: order.shipping_address.street ?? '',
           complement: order.shipping_address.complement ?? '',
           number: order.shipping_address.number ?? '',

@@ -101,6 +101,7 @@ export async function createOrder(
       customer_name: data.customer.name,
       customer_email: data.customer.email,
       customer_phone: data.customer.phone,
+      customer_cpf: data.customer.cpf,
       items: data.items,
       total: data.total,
       status: 'pending',
@@ -149,6 +150,7 @@ export type UpdateOrderInput = {
   notes?: string | null;
   shipping_carrier?: string | null;
   shipping_service?: string | null;
+  customer_cpf?: string | null;
 };
 
 export async function updateOrder(
