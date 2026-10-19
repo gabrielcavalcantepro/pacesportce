@@ -4,20 +4,19 @@ import { createClient } from '@/lib/supabase/server';
 import { normalizeVariants } from '@/lib/utils/variants';
 import type { ActionResult, Banner, Category, Order, Product, Review } from '@/lib/types';
 
-const PRODUCT_SELECT = '*, category:categories(*)';
-
 export async function getPublicProducts(filters?: {
   category_slug?: string;
   search?: string;
   featured?: boolean;
 }): Promise<Product[]> {
   const supabase = await createClient();
-  const needsInnerJoin = Boolean(filters?.category_slug);
 
+  // Inner join sempre: produtos de categorias desativadas não podem aparecer na loja.
   let query = supabase
     .from('products')
-    .select(needsInnerJoin ? '*, category:categories!inner(*)' : PRODUCT_SELECT)
+    .select('*, category:categories!inner(*)')
     .eq('status', 'active')
+    .eq('category.active', true)
     .order('created_at', { ascending: false });
 
   if (filters?.category_slug) {
@@ -89,9 +88,10 @@ export async function getPublicProductBySlug(slug: string): Promise<Product | nu
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('products')
-    .select(PRODUCT_SELECT)
+    .select('*, category:categories!inner(*)')
     .eq('slug', slug)
     .eq('status', 'active')
+    .eq('category.active', true)
     .maybeSingle();
 
   if (error) throw new Error(error.message);
@@ -143,9 +143,10 @@ export async function getRelatedProducts(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('products')
-    .select(PRODUCT_SELECT)
+    .select('*, category:categories!inner(*)')
     .eq('category_id', categoryId)
     .eq('status', 'active')
+    .eq('category.active', true)
     .neq('slug', excludeSlug)
     .limit(4);
 
