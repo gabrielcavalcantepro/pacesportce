@@ -119,7 +119,17 @@ export default function ProductForm({
   isLoading,
 }: ProductFormProps) {
   const [images, setImages] = useState<string[]>(defaultValues?.images ?? []);
-  const [variants, setVariants] = useState<ProductVariants>(defaultValues?.variants ?? emptyVariants);
+  // Produtos importados por planilha têm "dimensions" (ex: Tamanho: P/M/G) mas
+  // "combinations" sempre vazio — recalcula aqui pra tabela de preço/estoque por
+  // combinação já aparecer ao abrir o produto, sem precisar mexer manualmente
+  // no campo de variante primeiro pra "destravar" a tabela.
+  const [variants, setVariants] = useState<ProductVariants>(() => {
+    const initial = defaultValues?.variants ?? emptyVariants;
+    return {
+      dimensions: initial.dimensions,
+      combinations: recalculateCombinations(initial.dimensions, initial.combinations),
+    };
+  });
 
   const {
     register,
