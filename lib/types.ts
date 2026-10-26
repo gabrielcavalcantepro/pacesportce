@@ -15,6 +15,9 @@ export interface VariantDimension {
 export interface VariantCombination {
   key: string;
   price: number | null;
+  // null = sem controle próprio; usa o estoque do produto (lib/utils/price.ts
+  // tem o equivalente pra preço: getActivePrice/getOriginalPrice).
+  stock: number | null;
 }
 
 export interface ProductVariants {

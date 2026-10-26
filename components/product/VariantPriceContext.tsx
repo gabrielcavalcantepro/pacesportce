@@ -8,6 +8,7 @@ type VariantPriceContextValue = {
   selectedOptions: Record<string, string>;
   selectOption: (dimensionName: string, option: string) => void;
   effectivePrice: number;
+  effectiveStock: number;
   isOverridden: boolean;
 };
 
@@ -26,27 +27,33 @@ export function VariantPriceProvider({
     setSelectedOptions((prev) => ({ ...prev, [dimensionName]: option }));
   }
 
-  const { effectivePrice, isOverridden } = useMemo(() => {
+  const { effectivePrice, effectiveStock, isOverridden } = useMemo(() => {
     const { dimensions, combinations } = product.variants;
     const allSelected = dimensions.length > 0 && dimensions.every((d) => selectedOptions[d.name]);
 
     if (!allSelected) {
-      return { effectivePrice: getActivePrice(product), isOverridden: false };
+      return {
+        effectivePrice: getActivePrice(product),
+        effectiveStock: product.stock,
+        isOverridden: false,
+      };
     }
 
     const key = dimensions.map((d) => selectedOptions[d.name]).join('|');
     const combination = combinations.find((c) => c.key === key);
 
-    if (combination && combination.price != null) {
-      return { effectivePrice: combination.price, isOverridden: true };
-    }
-
-    return { effectivePrice: getActivePrice(product), isOverridden: false };
+    return {
+      effectivePrice:
+        combination && combination.price != null ? combination.price : getActivePrice(product),
+      effectiveStock:
+        combination && combination.stock != null ? combination.stock : product.stock,
+      isOverridden: Boolean(combination && combination.price != null),
+    };
   }, [product, selectedOptions]);
 
   return (
     <VariantPriceContext.Provider
-      value={{ selectedOptions, selectOption, effectivePrice, isOverridden }}
+      value={{ selectedOptions, selectOption, effectivePrice, effectiveStock, isOverridden }}
     >
       {children}
     </VariantPriceContext.Provider>

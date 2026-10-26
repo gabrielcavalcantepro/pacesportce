@@ -190,15 +190,32 @@ export async function decrementStock(items: CartItem[]): Promise<void> {
   for (const item of items) {
     const { data: product } = await supabaseAdmin
       .from('products')
-      .select('stock')
+      .select('stock, variants')
       .eq('id', item.productId)
       .maybeSingle();
 
     if (!product) continue;
 
-    await supabaseAdmin
-      .from('products')
-      .update({ stock: Math.max(product.stock - item.quantity, 0) })
-      .eq('id', item.productId);
+    const newStock = Math.max(product.stock - item.quantity, 0);
+    const variants = normalizeVariants(product.variants);
+
+    // Se o item tem variação selecionada e essa variação tem estoque próprio
+    // (stock != null), dá baixa nela também — senão, só no estoque do produto.
+    const key = item.selectedVariant
+      ? variants.dimensions.map((d) => item.selectedVariant?.[d.name]).join('|')
+      : null;
+    const combination = key ? variants.combinations.find((c) => c.key === key) : undefined;
+
+    if (combination && combination.stock != null) {
+      const combinations = variants.combinations.map((c) =>
+        c.key === combination.key ? { ...c, stock: Math.max(c.stock! - item.quantity, 0) } : c
+      );
+      await supabaseAdmin
+        .from('products')
+        .update({ stock: newStock, variants: { ...variants, combinations } })
+        .eq('id', item.productId);
+    } else {
+      await supabaseAdmin.from('products').update({ stock: newStock }).eq('id', item.productId);
+    }
   }
 }

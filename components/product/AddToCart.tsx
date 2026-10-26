@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ShoppingCart, Minus, Plus, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useVariantPrice } from './VariantPriceContext';
@@ -46,9 +46,17 @@ export default function AddToCart({
   variants,
 }: AddToCartProps) {
   const { addItem } = useCart();
-  const { selectedOptions, selectOption, effectivePrice } = useVariantPrice();
+  const { selectedOptions, selectOption, effectivePrice, effectiveStock } = useVariantPrice();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+
+  // Troca de variação pode reduzir o estoque disponível (ex: de 5 pra 2) —
+  // evita deixar a quantidade selecionada acima do que a variação atual tem.
+  useEffect(() => {
+    if (effectiveStock > 0) {
+      setQuantity((q) => Math.min(q, effectiveStock));
+    }
+  }, [effectiveStock]);
 
   function handleAdd() {
     const allSelected = variants.dimensions.every((d) => selectedOptions[d.name]);
@@ -144,12 +152,12 @@ export default function AddToCart({
           </button>
           <span className="w-8 text-center font-semibold text-[#f4f4f4]">{quantity}</span>
           <button
-            onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+            onClick={() => setQuantity((q) => Math.min(effectiveStock, q + 1))}
             className="w-9 h-9 flex items-center justify-center border border-[#2a2a2a] rounded-lg text-[#f4f4f4] hover:border-[#888888] transition-colors"
           >
             <Plus size={14} />
           </button>
-          <span className="text-xs text-[#888888]">{product.stock} em estoque</span>
+          <span className="text-xs text-[#888888]">{effectiveStock} em estoque</span>
         </div>
       </div>
 
@@ -191,9 +199,9 @@ export default function AddToCart({
       ) : (
         <button
           onClick={handleAdd}
-          disabled={product.stock === 0}
+          disabled={effectiveStock === 0}
           className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-colors ${
-            product.stock === 0
+            effectiveStock === 0
               ? 'bg-[#2a2a2a] text-[#888888] cursor-not-allowed'
               : added
               ? 'bg-[#888888] text-[#f4f4f4]'
@@ -205,7 +213,7 @@ export default function AddToCart({
               <Check size={18} />
               Adicionado!
             </>
-          ) : product.stock === 0 ? (
+          ) : effectiveStock === 0 ? (
             'Sem estoque'
           ) : (
             <>

@@ -53,7 +53,9 @@ function recalculateCombinations(
   const validDimensions = dimensions.filter((d) => d.name.trim() && d.options.length > 0);
   if (validDimensions.length === 0) return [];
 
-  const previousByKey = new Map(previousCombinations.map((c) => [c.key, c.price]));
+  const previousByKey = new Map(
+    previousCombinations.map((c) => [c.key, { price: c.price, stock: c.stock }])
+  );
 
   let keys: string[] = [''];
   for (const dimension of validDimensions) {
@@ -66,7 +68,10 @@ function recalculateCombinations(
     keys = next;
   }
 
-  return keys.map((key) => ({ key, price: previousByKey.get(key) ?? null }));
+  return keys.map((key) => {
+    const prev = previousByKey.get(key);
+    return { key, price: prev?.price ?? null, stock: prev?.stock ?? null };
+  });
 }
 
 function toFormValues(product?: Partial<Product>): FormValues {
@@ -167,6 +172,14 @@ export default function ProductForm({
       combinations: prev.combinations.map((c) =>
         c.key === key ? { ...c, price: cents > 0 ? cents : null } : c
       ),
+    }));
+  }
+
+  function updateCombinationStock(key: string, raw: string) {
+    const value = raw.trim() === '' ? null : Math.max(0, parseInt(raw, 10) || 0);
+    setVariants((prev) => ({
+      ...prev,
+      combinations: prev.combinations.map((c) => (c.key === key ? { ...c, stock: value } : c)),
     }));
   }
 
@@ -404,6 +417,12 @@ export default function ProductForm({
               className={inputClass}
             />
             {errors.stock && <p className="text-xs text-[#ef4444] mt-1">{errors.stock.message}</p>}
+            {variants.combinations.length > 0 && (
+              <p className="text-xs text-[#888888] mt-1">
+                Usado por variações sem estoque próprio preenchido (seção &quot;Variantes&quot;
+                abaixo).
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -563,13 +582,21 @@ export default function ProductForm({
 
         {variants.combinations.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-[#f4f4f4] mb-2">Preço por combinação</h3>
+            <h3 className="text-sm font-semibold text-[#f4f4f4] mb-1">
+              Preço e estoque por combinação
+            </h3>
+            <p className="text-xs text-[#888888] mb-2">
+              Deixe o estoque em branco pra essa variação usar o campo &quot;Estoque&quot; geral do
+              produto. Preencha com um número pra controlar o estoque dessa variação
+              separadamente.
+            </p>
             <div className="bg-[#1a1a1a] rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-[#888888]">
                     <th className="px-4 py-3 font-normal">Combinação</th>
                     <th className="px-4 py-3 font-normal">Preço</th>
+                    <th className="px-4 py-3 font-normal">Estoque</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#2a2a2a]">
@@ -584,6 +611,16 @@ export default function ProductForm({
                           onChange={(cents) => updateCombinationPrice(combo.key, cents)}
                           placeholder="Preço base"
                           className="w-full max-w-[160px] bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <input
+                          type="number"
+                          min={0}
+                          value={combo.stock ?? ''}
+                          onChange={(e) => updateCombinationStock(combo.key, e.target.value)}
+                          placeholder="Estoque do produto"
+                          className="w-full max-w-[140px] bg-[#151515] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#f4f4f4] outline-none focus:border-[#f4f4f4] transition-colors"
                         />
                       </td>
                     </tr>
